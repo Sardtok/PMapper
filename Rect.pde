@@ -27,4 +27,10 @@ class Rect {
     
     endShape();
   }
+  
+  void drawHandles() {
+    for (Vertex v : corners) {
+      v.drawHandle();
+    }
+  }
 }
