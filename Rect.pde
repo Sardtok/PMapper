@@ -1,4 +1,4 @@
-class Rect {
+class Rect implements Selectable {
   Vertex corners[] = new Vertex[4];
   PImage texture;
   color c = #ffffff;
@@ -32,5 +32,13 @@ class Rect {
     for (Vertex v : corners) {
       v.drawHandle();
     }
+  }
+  
+  boolean grab(float x, float y) {
+    return false;
+  }
+  
+  Iterable<Vertex> getVertices() {
+    return Arrays.asList(corners);
   }
 }
