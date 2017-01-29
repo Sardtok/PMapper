@@ -6,6 +6,8 @@ boolean shiftDown;
 
 boolean editMode = true;
 float scale;
+float VERTEX_SIZE;
+float VERTEX_SIZE_SQUARED;
 
 Set<Vertex> selection = new HashSet<Vertex>();
 
@@ -14,6 +16,9 @@ Scene scene = new Scene();
 void setup() {
   size(1280, 800, P2D);
   scale = min(width, height) / 2.0;
+
+  VERTEX_SIZE = 10.0 / scale;
+  VERTEX_SIZE_SQUARED = (VERTEX_SIZE * VERTEX_SIZE) / 4.0;
 
   Rect r = new Rect();
   r.c = #4080ff;
@@ -37,7 +42,6 @@ void draw() {
 void drawHandles() {
   strokeWeight(2.0 / scale);
   stroke(#ff0000);
-  fill(#ffffff);
 
   scene.drawHandles();
 }

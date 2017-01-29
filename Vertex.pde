@@ -22,14 +22,19 @@ class Vertex implements Selectable {
       return;
     }
 
-    ellipse(x, y, 10.0 / scale, 10.0 / scale);
+    if (selection.contains(this)) {
+      fill(#ffa0a0);
+    } else {
+      fill(#ffffff);
+    }
+    ellipse(x, y, VERTEX_SIZE, VERTEX_SIZE);
     handleDrawn = true;
   }
 
   boolean grab(float x, float y) {
     float diffX = this.x - x;
     float diffY = this.y - y;
-    return (diffX * diffX + diffY * diffY) < 5.0 / scale;
+    return (diffX * diffX + diffY * diffY) < VERTEX_SIZE_SQUARED;
   }
 
   Iterable<Vertex> getVertices() {
