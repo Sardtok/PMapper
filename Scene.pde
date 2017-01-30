@@ -37,4 +37,11 @@ class Scene {
 
     return null;
   }
+  
+  void fromJSON(JSONObject data) {
+  }
+  
+  JSONObject toJSON() {
+    return null;
+  }
 }

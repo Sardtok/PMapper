@@ -3,22 +3,32 @@ import java.util.*;
 import processing.video.*;
 
 boolean shiftDown;
+Vertex mousePosition;
 
 boolean editMode = true;
 float scale;
 float VERTEX_SIZE;
 float VERTEX_SIZE_SQUARED;
+float BUTTON_SIZE;
+float BUTTON_SIZE_SQUARED;
 
 Set<Vertex> selection = new HashSet<Vertex>();
+Button[] buttons = {
+  new Button(new Vertex(-0.9, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectInput("Load scene", "loadScene"); }}),
+  new Button(new Vertex(-0.8, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectOutput("Save scene", "saveScene"); }})
+};
 
 Scene scene = new Scene();
 
 void setup() {
   size(1280, 800, P2D);
+  ellipseMode(RADIUS);
   scale = min(width, height) / 2.0;
 
-  VERTEX_SIZE = 10.0 / scale;
-  VERTEX_SIZE_SQUARED = (VERTEX_SIZE * VERTEX_SIZE) / 4.0;
+  VERTEX_SIZE = 5.0 / scale;
+  VERTEX_SIZE_SQUARED = VERTEX_SIZE * VERTEX_SIZE;
+  BUTTON_SIZE = 10.0 / scale;
+  BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
 
   Rect r = new Rect();
   r.c = #4080ff;
@@ -36,7 +46,10 @@ void draw() {
 
   if (editMode) {
     drawHandles();
+    drawButtons();
   }
+
+  mousePosition = null;
 }
 
 void drawHandles() {
@@ -46,14 +59,31 @@ void drawHandles() {
   scene.drawHandles();
 }
 
+void drawButtons() {
+  Vertex mouse = getMousePosition();
+
+  for (Button b : buttons) {
+    b.draw(mouse);
+  }
+}
+
+Vertex getMousePosition() {
+  if (mousePosition == null) {
+    mousePosition = new Vertex((mouseX - width / 2.0) / scale, (mouseY - height / 2.0) / scale);
+  }
+
+  return mousePosition;
+}
+
 void mousePressed() {
-  Selectable s = scene.grab((mouseX - width / 2.0) / scale, (mouseY - height / 2.0) / scale);
+  Vertex mouse = getMousePosition();
+  Selectable s = scene.grab(mouse.x, mouse.y);
 
   if (s == null) {
     if (!shiftDown) {
       selection.clear();
     }
-    
+
     return;
   }
 
@@ -90,10 +120,25 @@ void mouseDragged() {
   }
 }
 
+void mouseClicked() {
+  Vertex mouse = getMousePosition();
+  for (Button b : buttons) {
+    b.click(mouse);
+  }
+}
+
 void keyPressed() {
   shiftDown |= keyCode == SHIFT;
 }
 
 void keyReleased() {
   shiftDown ^= keyCode == SHIFT;
+}
+
+void loadScene(File f) {
+  println("Loading scene from: " + f);
+}
+
+void saveScene(File f) {
+  println("Saving scene to: " + f);
 }
