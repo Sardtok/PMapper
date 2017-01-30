@@ -37,6 +37,15 @@ class Vertex implements Selectable {
     return (diffX * diffX + diffY * diffY) < VERTEX_SIZE_SQUARED;
   }
 
+  JSONObject toJSON() {
+    JSONObject json = new JSONObject();
+    
+    json.setFloat("x", x);
+    json.setFloat("y", y);
+    
+    return json;
+  }
+
   Iterable<Vertex> getVertices() {
     return new Iterable<Vertex>() {
       public Iterator<Vertex> iterator() {

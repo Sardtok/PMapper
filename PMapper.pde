@@ -30,8 +30,7 @@ void setup() {
   BUTTON_SIZE = 10.0 / scale;
   BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
 
-  Rect r = new Rect();
-  r.c = #4080ff;
+  Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), #4080ff);
   scene.addRect(r);
 }
 
@@ -136,9 +135,9 @@ void keyReleased() {
 }
 
 void loadScene(File f) {
-  println("Loading scene from: " + f);
+  scene.fromJSON(loadJSONObject(f));
 }
 
 void saveScene(File f) {
-  println("Saving scene to: " + f);
+  saveJSONObject(scene.toJSON(), f.getAbsolutePath());
 }
