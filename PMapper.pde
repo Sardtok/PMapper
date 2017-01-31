@@ -125,6 +125,18 @@ void mouseDragged() {
     v.x += dX;
     v.y += dY;
   }
+  
+  if (selection.size() == 1) {
+    Vertex selected = selection.iterator().next();
+    Vertex mouse = getMousePosition();
+    
+    for (Vertex v : scene.vertices) {
+      if (selected != v && v.grab(mouse.x, mouse.y)) {
+        selected.x = v.x;
+        selected.y = v.y;
+      }
+    }
+  }
 }
 
 void mouseClicked() {
