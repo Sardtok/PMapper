@@ -13,11 +13,7 @@ float BUTTON_SIZE;
 float BUTTON_SIZE_SQUARED;
 
 Set<Vertex> selection = new HashSet<Vertex>();
-Button[] buttons = {
-  new Button(new Vertex(-0.9, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectInput("Load scene", "loadScene"); }}),
-  new Button(new Vertex(-0.8, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectOutput("Save scene", "saveScene"); }}),
-  new Button(new Vertex(-0.7, -0.9), new Vertex(0, 0), new Runnable() { void run() { createRect(); }})
-};
+Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
 
 Scene scene = new Scene();
 color shapeColors[] = {
@@ -38,6 +34,10 @@ void setup() {
   VERTEX_SIZE_SQUARED = VERTEX_SIZE * VERTEX_SIZE;
   BUTTON_SIZE = 10.0 / scale;
   BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
+  
+  tools.addTool("Load", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load scene", "loadScene"); }}));
+  tools.addTool("Save", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
+  tools.addTool("Rectangle", new Button(new Vertex(0, 0), new Runnable() { public void run() { createRect(); }}));
   
   createRect();
 }
@@ -67,11 +67,7 @@ void drawHandles() {
 }
 
 void drawButtons() {
-  Vertex mouse = getMousePosition();
-
-  for (Button b : buttons) {
-    b.draw(mouse);
-  }
+  tools.draw();
 }
 
 Vertex getMousePosition() {
@@ -140,10 +136,7 @@ void mouseDragged() {
 }
 
 void mouseClicked() {
-  Vertex mouse = getMousePosition();
-  for (Button b : buttons) {
-    b.click(mouse);
-  }
+  tools.click();
 }
 
 void keyPressed() {
