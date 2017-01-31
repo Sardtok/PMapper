@@ -15,10 +15,19 @@ float BUTTON_SIZE_SQUARED;
 Set<Vertex> selection = new HashSet<Vertex>();
 Button[] buttons = {
   new Button(new Vertex(-0.9, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectInput("Load scene", "loadScene"); }}),
-  new Button(new Vertex(-0.8, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectOutput("Save scene", "saveScene"); }})
+  new Button(new Vertex(-0.8, -0.9), new Vertex(0, 0), new Runnable() { void run() { selectOutput("Save scene", "saveScene"); }}),
+  new Button(new Vertex(-0.7, -0.9), new Vertex(0, 0), new Runnable() { void run() { createRect(); }})
 };
 
 Scene scene = new Scene();
+color shapeColors[] = {
+  #4080ff,
+  #ff4080,
+  #80ff40,
+  #8040ff,
+  #ff8040,
+  #40ff80
+};
 
 void setup() {
   size(1280, 800, P2D);
@@ -29,9 +38,8 @@ void setup() {
   VERTEX_SIZE_SQUARED = VERTEX_SIZE * VERTEX_SIZE;
   BUTTON_SIZE = 10.0 / scale;
   BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
-
-  Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), #4080ff);
-  scene.addRect(r);
+  
+  createRect();
 }
 
 void draw() {
@@ -132,6 +140,11 @@ void keyPressed() {
 
 void keyReleased() {
   shiftDown ^= keyCode == SHIFT;
+}
+
+void createRect() {
+  Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
+  scene.addRect(r);
 }
 
 void loadScene(File f) {
