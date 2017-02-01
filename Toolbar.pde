@@ -19,7 +19,7 @@ class Toolbar {
     tools.get(name).disable();
   }
   
-  void click() {
+  boolean click() {
     Vertex mouse = getMousePosition();
     float x = position.x - mouse.x;
     float y = position.y - mouse.y;
@@ -29,9 +29,13 @@ class Toolbar {
         continue;
       }
       
-      b.click(x, y);
+      if (b.click(x, y)) {
+        return true;
+      }
       x += 0.1;
     }
+    
+    return false;
   }
   
   void draw() {

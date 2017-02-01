@@ -35,13 +35,16 @@ class Button {
     enabled = true;
   }
   
-  void click(float x, float y) {
+  boolean click(float x, float y) {
     if (!enabled) {
-      return;
+      return false;
     }
     
     if (isOver(x, y)) {
       action.run();
+      return true;
     }
+    
+    return false;
   }
 }

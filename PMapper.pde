@@ -13,6 +13,8 @@ float BUTTON_SIZE;
 float BUTTON_SIZE_SQUARED;
 
 Set<Vertex> selection = new HashSet<Vertex>();
+Selectable toSelect;
+boolean clearSelection;
 Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
 
 Scene scene = new Scene();
@@ -38,6 +40,8 @@ void setup() {
   tools.addTool("Load", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load scene", "loadScene"); }}));
   tools.addTool("Save", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
   tools.addTool("Rectangle", new Button(new Vertex(0, 0), new Runnable() { public void run() { createRect(); }}));
+  tools.addTool("Merge", new Button(new Vertex(0, 0), new Runnable() { public void run() { merge(); }}));
+  tools.disableTool("Merge");
   
   createRect();
 }
@@ -80,24 +84,33 @@ Vertex getMousePosition() {
 
 void mousePressed() {
   Vertex mouse = getMousePosition();
-  Selectable s = scene.grab(mouse.x, mouse.y);
+  toSelect = scene.grab(mouse.x, mouse.y);
+  
+  if (toSelect == null && !shiftDown) {
+    clearSelection = true;
+  }
+}
 
-  if (s == null) {
-    if (!shiftDown) {
-      selection.clear();
-    }
-
+void select() {
+  if (toSelect == null && !clearSelection) {
+    enableMerge();
     return;
   }
-
-  if (shiftDown) {
-    toggleSelection(s.getVertices());
+  
+  if (clearSelection) {
+      selection.clear();
+  } else if (shiftDown) {
+    toggleSelection(toSelect.getVertices());
   } else {
     selection.clear();
-    for (Vertex v : s.getVertices()) {
+    for (Vertex v : toSelect.getVertices()) {
       selection.add(v);
     }
   }
+  
+  toSelect = null;
+  clearSelection = false;
+  enableMerge();
 }
 
 void toggleSelection(Iterable<Vertex> vertexIterator) {
@@ -116,27 +129,23 @@ void toggleSelection(Iterable<Vertex> vertexIterator) {
 void mouseDragged() {
   float dX = (mouseX - pmouseX) / scale;
   float dY = (mouseY - pmouseY) / scale;
+  select();
 
   for (Vertex v : selection) {
     v.x += dX;
     v.y += dY;
   }
-  
+
+  tools.disableTool("Merge");
   if (selection.size() == 1) {
-    Vertex selected = selection.iterator().next();
-    Vertex mouse = getMousePosition();
-    
-    for (Vertex v : scene.vertices) {
-      if (selected != v && v.grab(mouse.x, mouse.y)) {
-        selected.x = v.x;
-        selected.y = v.y;
-      }
-    }
+    snap();
   }
 }
 
 void mouseClicked() {
-  tools.click();
+  if (!tools.click()) {
+    select();
+  }
 }
 
 void keyPressed() {
@@ -150,6 +159,62 @@ void keyReleased() {
 void createRect() {
   Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
   scene.addRect(r);
+}
+
+Vertex getSelectedVertex() {
+  if (selection.size() != 1) {
+    return null;
+  }
+
+  return selection.iterator().next();
+}
+
+void snap() {
+  Vertex selected = selection.iterator().next();
+  Vertex mouse = getMousePosition();
+
+  for (Vertex v : scene.vertices) {
+    if (selected != v && v.grab(mouse.x, mouse.y)) {
+      selected.x = v.x;
+      selected.y = v.y;
+      tools.enableTool("Merge");
+      return;
+    }
+  }
+}
+
+void enableMerge() {
+  Vertex selected = getSelectedVertex();
+  if (selected == null) {
+    tools.disableTool("Merge");
+    return;
+  }
+  
+  for (Vertex v : scene.vertices) {
+    if (selected != v && v.grab(selected.x, selected.y)) {
+      tools.enableTool("Merge");
+      return;
+    }
+  }
+}
+
+void merge() {
+  Vertex selected = getSelectedVertex();
+  if (selected == null) {
+    return;
+  }
+  
+  Vertex mergeCandidate = null;
+  for (Vertex v : scene.vertices) {
+    if (selected != v && v.grab(selected.x, selected.y)) {
+      mergeCandidate = v;
+      break;
+    }
+  }
+  
+  if (mergeCandidate != null) {
+    selected.merge(mergeCandidate);
+  }
 }
 
 void loadScene(File f) {

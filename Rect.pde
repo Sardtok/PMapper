@@ -10,6 +10,11 @@ class Rect implements Selectable {
     corners[3] = v3;
     
     this.c = c;
+    
+    v0.addShape(this);
+    v1.addShape(this);
+    v2.addShape(this);
+    v3.addShape(this);
   }
   
   void draw() {
@@ -33,6 +38,14 @@ class Rect implements Selectable {
   void drawHandles() {
     for (Vertex v : corners) {
       v.drawHandle();
+    }
+  }
+  
+  void replace(Vertex v1, Vertex v2) {
+    for (int i = 0; i < corners.length; i++) {
+      if (corners[i] == v1) {
+        corners[i] = v2;
+      }
     }
   }
   

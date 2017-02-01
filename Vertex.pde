@@ -1,10 +1,15 @@
 class Vertex implements Selectable {
+  Set<Rect> shapes = new HashSet<Rect>();
   float x, y;
   boolean handleDrawn;
 
   Vertex(float x, float y) {
     this.x = x;
     this.y = y;
+  }
+
+  void addShape(Rect s) {
+    shapes.add(s);
   }
 
   void draw() {
@@ -35,6 +40,14 @@ class Vertex implements Selectable {
     float diffX = this.x - x;
     float diffY = this.y - y;
     return (diffX * diffX + diffY * diffY) < VERTEX_SIZE_SQUARED;
+  }
+
+  void merge(Vertex other) {
+    shapes.addAll(other.shapes);
+    for (Rect s : other.shapes) {
+      s.replace(other, this);
+    }
+    scene.vertices.remove(other);
   }
 
   JSONObject toJSON() {
