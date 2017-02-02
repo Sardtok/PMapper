@@ -50,7 +50,21 @@ class Rect implements Selectable {
   }
   
   boolean grab(float x, float y) {
-    return false;
+    selectionBuffer.beginDraw();
+    selectionBuffer.background(0);
+    selectionBuffer.fill(#ffffff);
+    selectionBuffer.noStroke();
+    selectionBuffer.translate(width / 2, height / 2);
+    selectionBuffer.scale(scale);
+    
+    selectionBuffer.quad(corners[0].x, corners[0].y, 
+      corners[1].x, corners[1].y, 
+      corners[2].x, corners[2].y, 
+      corners[3].x, corners[3].y);
+    
+    selectionBuffer.endDraw();
+    
+    return selectionBuffer.get((int)((x * scale) + (width / 2)), (int)((y * scale) + (height / 2))) == #ffffff;
   }
   
   JSONObject toJSON() {

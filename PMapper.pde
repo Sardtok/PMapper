@@ -13,8 +13,10 @@ float BUTTON_SIZE;
 float BUTTON_SIZE_SQUARED;
 
 Set<Vertex> selection = new HashSet<Vertex>();
+PGraphics selectionBuffer;
 Selectable toSelect;
 boolean clearSelection;
+
 Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
 
 Scene scene = new Scene();
@@ -29,6 +31,7 @@ color shapeColors[] = {
 
 void setup() {
   size(1280, 800, P2D);
+  selectionBuffer = createGraphics(width, height);
   ellipseMode(RADIUS);
   scale = min(width, height) / 2.0;
 
@@ -50,9 +53,9 @@ void draw() {
   background(0);
   noStroke();
 
+  translate(width / 2, height / 2);
   scale(scale);
-  translate(width / (scale * 2), height / (scale * 2));
-
+  
   scene.draw();
 
   if (editMode) {
