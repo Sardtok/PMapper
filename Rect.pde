@@ -1,5 +1,6 @@
-class Rect implements Selectable {
+class Rect implements Selectable, Layer {
   Vertex corners[] = new Vertex[4];
+  Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
   PImage texture;
   color c = #ffffff;
   
@@ -65,6 +66,13 @@ class Rect implements Selectable {
     selectionBuffer.endDraw();
     
     return selectionBuffer.get((int)((x * scale) + (width / 2)), (int)((y * scale) + (height / 2))) == #ffffff;
+  }
+  
+  String getName() {
+    return "Rect X";
+  }
+  
+  void select() {
   }
   
   JSONObject toJSON() {

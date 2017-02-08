@@ -21,7 +21,7 @@ class Toolbar {
   
   boolean click() {
     Vertex mouse = getMousePosition();
-    float x = position.x - mouse.x;
+    float x = position.x - mouse.x + 0.1;
     float y = position.y - mouse.y;
     
     for (Button b : tools.values()) {
@@ -40,7 +40,7 @@ class Toolbar {
   
   void draw() {
     Vertex mouse = getMousePosition();
-    float x = position.x;
+    float x = position.x + 0.1;
     for (Button b : tools.values()) {
       if (!b.enabled) {
         continue;
@@ -49,5 +49,6 @@ class Toolbar {
       b.draw(x, position.y, mouse);
       x += 0.1;
     }
+    position.handleDrawn = false;
   }
 }

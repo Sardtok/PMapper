@@ -1,6 +1,7 @@
 class Scene {
   Set<Vertex> vertices = new LinkedHashSet<Vertex>();
   Set<Rect> shapes = new LinkedHashSet<Rect>();
+  Map<String, Texture> textures = new HashMap<String, Texture>();
 
   void addRect(Rect r) {
     for (Vertex v : r.corners) {
@@ -8,6 +9,12 @@ class Scene {
     }
 
     shapes.add(r);
+    shapeWindow.add(r);
+  }
+  
+  void addTexture(Texture t, String path) {
+    textures.put(path, t);
+    textureWindow.add(t);
   }
 
   void draw() {

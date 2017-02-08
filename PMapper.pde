@@ -5,7 +5,7 @@ import processing.video.*;
 boolean shiftDown;
 Vertex mousePosition;
 
-boolean editMode = true;
+Mode mode = Mode.EDIT_SCENE;
 float scale;
 float VERTEX_SIZE;
 float VERTEX_SIZE_SQUARED;
@@ -18,6 +18,9 @@ Selectable toSelect;
 boolean clearSelection;
 
 Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
+LayerWindow textureWindow;
+LayerWindow shapeWindow;
+PFont font;
 
 Scene scene = new Scene();
 color shapeColors[] = {
@@ -31,7 +34,7 @@ color shapeColors[] = {
 
 void setup() {
   size(1280, 800, P2D);
-  selectionBuffer = createGraphics(width, height);
+  selectionBuffer = createGraphics(width, height, P2D);
   ellipseMode(RADIUS);
   scale = min(width, height) / 2.0;
 
@@ -44,7 +47,13 @@ void setup() {
   tools.addTool("Save", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
   tools.addTool("Rectangle", new Button(new Vertex(0, 0), new Runnable() { public void run() { createRect(); }}));
   tools.addTool("Merge", new Button(new Vertex(0, 0), new Runnable() { public void run() { merge(); }}));
+  tools.addTool("Add texture", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
   tools.disableTool("Merge");
+  
+  font = createFont("Verdana", 10);
+  textFont(font);
+  textureWindow = new LayerWindow("Textures", new Vertex(-width / (scale * 2) + 0.1, -0.5));
+  shapeWindow = new LayerWindow("Shapes", new Vertex(width / (scale * 2) - 0.3, -0.5));
   
   createRect();
 }
@@ -58,9 +67,11 @@ void draw() {
   
   scene.draw();
 
-  if (editMode) {
+  if (mode == Mode.EDIT_SCENE) {
     drawHandles();
     drawButtons();
+    textureWindow.draw();
+    shapeWindow.draw();
   }
 
   mousePosition = null;
@@ -71,6 +82,9 @@ void drawHandles() {
   stroke(#ff0000);
 
   scene.drawHandles();
+  tools.position.drawHandle();
+  textureWindow.position.drawHandle();
+  shapeWindow.position.drawHandle();
 }
 
 void drawButtons() {
@@ -87,11 +101,28 @@ Vertex getMousePosition() {
 
 void mousePressed() {
   Vertex mouse = getMousePosition();
+  if (selectionHasTools()) {
+    selection.clear();
+  }
   toSelect = scene.grab(mouse.x, mouse.y);
   
   if (toSelect == null && !shiftDown) {
-    clearSelection = true;
+    if (tools.position.grab(mouse.x, mouse.y)) {
+      toSelect = tools.position;
+    } else if (textureWindow.position.grab(mouse.x, mouse.y)) {
+      toSelect = textureWindow.position;
+    } else if (shapeWindow.position.grab(mouse.x, mouse.y)) {
+      toSelect = shapeWindow.position;
+    } else {
+      clearSelection = true;
+    }
   }
+}
+
+boolean selectionHasTools() {
+  return selection.contains(tools.position)
+    || selection.contains(textureWindow.position)
+    || selection.contains(shapeWindow.position);
 }
 
 void select() {
@@ -174,10 +205,9 @@ Vertex getSelectedVertex() {
 
 void snap() {
   Vertex selected = selection.iterator().next();
-  Vertex mouse = getMousePosition();
 
   for (Vertex v : scene.vertices) {
-    if (selected != v && v.grab(mouse.x, mouse.y)) {
+    if (selected != v && v.grab(selected.x, selected.y)) {
       selected.x = v.x;
       selected.y = v.y;
       tools.enableTool("Merge");
@@ -226,4 +256,15 @@ void loadScene(File f) {
 
 void saveScene(File f) {
   saveJSONObject(scene.toJSON(), f.getAbsolutePath());
+}
+
+void loadTexture(File f) {
+  PImage img = loadImage(f.getAbsolutePath());
+  if (img != null && img.width >= 0) {
+    scene.addTexture(new ImageTexture(img, f.getName()), f.getAbsolutePath());
+    return;
+  }
+  
+  Movie m = new Movie(this, f.getAbsolutePath());
+  scene.addTexture(new MovieTexture(m, f.getName()), f.getAbsolutePath());
 }
