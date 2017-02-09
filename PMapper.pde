@@ -132,19 +132,30 @@ void select() {
   }
   
   if (clearSelection) {
-      selection.clear();
+    clearSelection();
   } else if (shiftDown) {
     toggleSelection(toSelect.getVertices());
   } else {
-    selection.clear();
+    clearSelection();
     for (Vertex v : toSelect.getVertices()) {
       selection.add(v);
+    }
+  }
+  
+  for (Vertex v : selection) {
+    for (Rect s : v.shapes) {
+      shapeWindow.addSelected(s);
     }
   }
   
   toSelect = null;
   clearSelection = false;
   enableMerge();
+}
+
+void clearSelection() {
+  shapeWindow.clearSelection();
+  selection.clear();
 }
 
 void toggleSelection(Iterable<Vertex> vertexIterator) {

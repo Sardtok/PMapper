@@ -1,5 +1,6 @@
 class LayerWindow { //<>//
   Set<Layer> layers = new LinkedHashSet<Layer>();
+  Set<Layer> selected = new HashSet<Layer>();
   Vertex position;
   String title;
   PGraphics g;
@@ -32,7 +33,12 @@ class LayerWindow { //<>//
 
     float y = fontHeight + 2;
     for (Layer l : layers) {
-      g.text(l.getName(), 2, y);
+      if (selected.contains(l)) {
+        g.fill(#604000);
+        g.rect(1, y + 2, width - 2, fontHeight);
+        g.fill(#c0d0ff);
+      }
+      g.text(l.getName(), 2, y + 2);
       y += fontHeight;
     }
 
@@ -42,6 +48,18 @@ class LayerWindow { //<>//
     position.handleDrawn = false;
   }
 
+  void clearSelection() {
+    selected.clear();
+  }
+  
+  void addSelected(Layer l) {
+    if (!layers.contains(l)) {
+      return;
+    }
+    
+    selected.add(l);
+  }
+  
   void add(Layer l) {
     if (!layers.add(l)) {
       return;
