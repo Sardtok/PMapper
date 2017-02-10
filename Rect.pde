@@ -3,6 +3,7 @@ class Rect implements Selectable, Layer {
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
   PImage texture;
   color c = #ffffff;
+  String name = "Rect";
   
   Rect(Vertex v0, Vertex v1, Vertex v2, Vertex v3, color c) {
     corners[0] = v0;
@@ -68,11 +69,17 @@ class Rect implements Selectable, Layer {
     return selectionBuffer.get((int)((x * scale) + (width / 2)), (int)((y * scale) + (height / 2))) == #ffffff;
   }
   
+  void setName(String name) {
+    this.name = name;
+  }
+  
   String getName() {
-    return "Rect X";
+    return name;
   }
   
   void select() {
+    clearSelection = false;
+    toSelect = this;
   }
   
   JSONObject toJSON() {

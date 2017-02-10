@@ -188,9 +188,13 @@ void mouseDragged() {
 }
 
 void mouseClicked() {
-  if (!tools.click()) {
-    select();
+  if (tools.click()) {
+    return;
   }
+  
+  shapeWindow.click();
+  
+  select();
 }
 
 void keyPressed() {
@@ -204,6 +208,7 @@ void keyReleased() {
 void createRect() {
   Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
   scene.addRect(r);
+  r.setName("Rect " + scene.shapes.size());
 }
 
 Vertex getSelectedVertex() {
@@ -262,14 +267,26 @@ void merge() {
 }
 
 void loadScene(File f) {
+  if (f == null) {
+    return;
+  }
+  
   scene.fromJSON(loadJSONObject(f));
 }
 
 void saveScene(File f) {
+  if (f == null) {
+    return;
+  }
+  
   saveJSONObject(scene.toJSON(), f.getAbsolutePath());
 }
 
 void loadTexture(File f) {
+  if (f == null) {
+    return;
+  }
+  
   PImage img = loadImage(f.getAbsolutePath());
   if (img != null && img.width >= 0) {
     scene.addTexture(new ImageTexture(img, f.getName()), f.getAbsolutePath());

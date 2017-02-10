@@ -74,4 +74,23 @@ class LayerWindow { //<>//
     height = ceil(height + fontHeight + 4);
     g = createGraphics(width, height, P2D);
   }
+  
+  void click() {
+    Vertex mouse = getMousePosition();
+    float dx = (mouse.x - position.x) * scale;
+    float dy = (mouse.y - position.y) * scale;
+    
+    if (dx < 0 || dy < 0 || dx > width || dy > width) {
+      return;
+    }
+    
+    float pos = fontHeight + 2;
+    for (Layer l : layers) {
+      if (dy >= pos && dy < pos + fontHeight) {
+        l.select();
+        break;
+      }
+      pos += fontHeight;
+    }
+  }
 }
