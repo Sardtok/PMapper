@@ -1,7 +1,7 @@
 class Rect implements Selectable, Layer {
   Vertex corners[] = new Vertex[4];
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
-  PImage texture;
+  Texture texture;
   color c = #ffffff;
   String name = "Rect";
   
@@ -23,17 +23,17 @@ class Rect implements Selectable, Layer {
     beginShape(QUADS);
     
     if (texture != null) {
-      texture(texture);
+      texture(texture.getImage());
       tint(c);
     } else {
       fill(c);
     }
     
-    corners[0].draw();
-    corners[1].draw();
-    corners[2].draw();
-    corners[3].draw();
-    
+    corners[0].draw(uvs[0].x, uvs[0].y);
+    corners[1].draw(uvs[1].x, uvs[1].y);
+    corners[2].draw(uvs[2].x, uvs[2].y);
+    corners[3].draw(uvs[3].x, uvs[3].y);
+      
     endShape();
   }
   
@@ -67,6 +67,11 @@ class Rect implements Selectable, Layer {
     selectionBuffer.endDraw();
     
     return selectionBuffer.get((int)((x * scale) + (width / 2)), (int)((y * scale) + (height / 2))) == #ffffff;
+  }
+  
+  void setTexture(Texture t) {
+    this.texture = t;
+    this.c = #ffffff;
   }
   
   void setName(String name) {

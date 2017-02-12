@@ -12,9 +12,12 @@ class Scene {
     shapeWindow.add(r);
   }
   
-  void addTexture(Texture t, String path) {
-    textures.put(path, t);
-    textureWindow.add(t);
+  boolean addTexture(Texture t, String path) {
+    if (textures.put(path, t) == null) {
+      textureWindow.add(t);
+      return true;
+    }
+    return false;
   }
 
   void draw() {

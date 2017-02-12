@@ -36,6 +36,7 @@ void setup() {
   size(1280, 800, P2D);
   selectionBuffer = createGraphics(width, height, P2D);
   ellipseMode(RADIUS);
+  textureMode(NORMAL);
   scale = min(width, height) / 2.0;
 
   VERTEX_SIZE = 5.0 / scale;
@@ -288,11 +289,21 @@ void loadTexture(File f) {
   }
   
   PImage img = loadImage(f.getAbsolutePath());
+  Texture t = null;
   if (img != null && img.width >= 0) {
-    scene.addTexture(new ImageTexture(img, f.getName()), f.getAbsolutePath());
-    return;
+    t = new ImageTexture(img, f.getName());
+  } else {
+    t = new MovieTexture(new Movie(this, f.getAbsolutePath()), f.getName());
   }
   
-  Movie m = new Movie(this, f.getAbsolutePath());
-  scene.addTexture(new MovieTexture(m, f.getName()), f.getAbsolutePath());
+  if (!scene.addTexture(t, f.getAbsolutePath())) {
+    return;
+  }
+
+  for (Rect s : scene.shapes) {
+    Collection<Vertex> verts = (Collection<Vertex>) s.getVertices();
+    if (selection.containsAll(verts) && verts.containsAll(selection)) {
+      s.setTexture(t);
+    }
+  }
 }
