@@ -272,7 +272,9 @@ void loadScene(File f) {
     return;
   }
   
+  Scene scene = new Scene();
   scene.fromJSON(loadJSONObject(f));
+  this.scene = scene;
 }
 
 void saveScene(File f) {
