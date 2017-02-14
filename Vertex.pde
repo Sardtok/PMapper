@@ -17,6 +17,11 @@ class Vertex implements Selectable {
     handleDrawn = false;
   }
 
+  void draw(Vertex uvs) {
+    vertex(x, y, uvs.x, uvs.y);
+    handleDrawn = false;
+  }
+
   void draw(float u, float v) {
     vertex(x, y, u, v);
     handleDrawn = false;
@@ -48,6 +53,10 @@ class Vertex implements Selectable {
       s.replace(other, this);
     }
     scene.vertices.remove(other);
+  }
+
+  Vertex middle(Vertex other) {
+    return new Vertex((x + other.x) / 2, (y + other.y) / 2);
   }
 
   JSONObject toJSON() {

@@ -1,6 +1,12 @@
 class Rect implements Selectable, Layer {
   Vertex corners[] = new Vertex[4];
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
+  
+  boolean rbDirty = true;
+  Vertex rectBuf[][] = new Vertex[5][5];
+  boolean uvbDirty = true;
+  Vertex uvBuf[][] = new Vertex[5][5];
+  
   Texture texture;
   color c = #ffffff;
   String name = "Rect";
@@ -29,12 +35,57 @@ class Rect implements Selectable, Layer {
       fill(c);
     }
     
-    corners[0].draw(uvs[0].x, uvs[0].y);
-    corners[1].draw(uvs[1].x, uvs[1].y);
-    corners[2].draw(uvs[2].x, uvs[2].y);
-    corners[3].draw(uvs[3].x, uvs[3].y);
-      
+    if (rbDirty) {
+      populateBuffer(rectBuf, corners);
+    }
+    
+    if (uvbDirty) {
+      populateBuffer(uvBuf, uvs);
+    }
+    
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        rectBuf[i][j].draw(uvBuf[i][j]);
+        rectBuf[i + 1][j].draw(uvBuf[i + 1][j]);
+        rectBuf[i + 1][j + 1].draw(uvBuf[i + 1][j + 1]);
+        rectBuf[i][j + 1].draw(uvBuf[i][j + 1]);
+      }
+    }
+    
     endShape();
+  }
+  
+  void populateBuffer(Vertex[][] buffer, Vertex[] original) {
+    buffer[0][0] = original[0];
+    buffer[4][0] = original[1];
+    buffer[4][4] = original[2];
+    buffer[0][4] = original[3];
+    
+    
+    buffer[0][2] = buffer[0][0].middle(buffer[0][4]);
+    buffer[2][0] = buffer[0][0].middle(buffer[4][0]);
+    buffer[2][4] = buffer[4][4].middle(buffer[0][4]);
+    buffer[4][2] = buffer[4][0].middle(buffer[4][4]);
+    buffer[2][2] = buffer[2][0].middle(buffer[2][4]);
+    
+    buffer[0][1] = buffer[0][0].middle(buffer[0][2]);
+    buffer[0][3] = buffer[0][2].middle(buffer[0][4]);
+    buffer[2][1] = buffer[2][0].middle(buffer[2][2]);
+    buffer[2][3] = buffer[2][2].middle(buffer[2][4]);
+    buffer[4][1] = buffer[4][0].middle(buffer[4][2]);
+    buffer[4][3] = buffer[4][2].middle(buffer[4][4]);
+    
+    buffer[1][0] = buffer[0][0].middle(buffer[2][0]);
+    buffer[1][1] = buffer[0][1].middle(buffer[2][1]);
+    buffer[1][2] = buffer[0][2].middle(buffer[2][2]);
+    buffer[1][3] = buffer[0][3].middle(buffer[2][3]);
+    buffer[1][4] = buffer[0][4].middle(buffer[2][4]);
+    
+    buffer[3][0] = buffer[2][0].middle(buffer[4][0]);
+    buffer[3][1] = buffer[2][1].middle(buffer[4][1]);
+    buffer[3][2] = buffer[2][2].middle(buffer[4][2]);
+    buffer[3][3] = buffer[2][3].middle(buffer[4][3]);
+    buffer[3][4] = buffer[2][4].middle(buffer[4][4]);
   }
   
   void drawHandles() {
