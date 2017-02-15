@@ -21,6 +21,7 @@ Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
 LayerWindow textureWindow;
 LayerWindow shapeWindow;
 PFont font;
+PImage icons;
 
 Scene scene = new Scene();
 color shapeColors[] = {
@@ -44,11 +45,12 @@ void setup() {
   BUTTON_SIZE = 10.0 / scale;
   BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
   
+  icons = loadImage("Icons.png");
   tools.addTool("Load", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load scene", "loadScene"); }}));
-  tools.addTool("Save", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
-  tools.addTool("Rectangle", new Button(new Vertex(0, 0), new Runnable() { public void run() { createRect(); }}));
-  tools.addTool("Merge", new Button(new Vertex(0, 0), new Runnable() { public void run() { merge(); }}));
-  tools.addTool("Add texture", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
+  tools.addTool("Save", new Button(new Vertex(1.0 / 6.0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
+  tools.addTool("Rectangle", new Button(new Vertex(2.0 / 6.0, 0), new Runnable() { public void run() { createRect(); }}));
+  tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
+  tools.addTool("Add texture", new Button(new Vertex(5.0 / 6.0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
   tools.disableTool("Merge");
   
   font = createFont("Verdana", 10);

@@ -21,6 +21,15 @@ class Button {
     }
     
     ellipse(x, y, BUTTON_SIZE, BUTTON_SIZE);
+    
+    beginShape(QUADS);
+    noStroke();
+    texture(icons);
+    vertex(x - BUTTON_SIZE / 2, y - BUTTON_SIZE / 2, uvs.x, uvs.y);
+    vertex(x - BUTTON_SIZE / 2, y + BUTTON_SIZE / 2, uvs.x, uvs.y + 10.0 / icons.height);
+    vertex(x + BUTTON_SIZE / 2, y + BUTTON_SIZE / 2, uvs.x + 10.0 / icons.width, uvs.y + 10.0 / icons.height);
+    vertex(x + BUTTON_SIZE / 2, y - BUTTON_SIZE / 2, uvs.x + 10.0 / icons.width, uvs.y);
+    endShape();
   }
   
   boolean isOver(float x, float y) {
