@@ -50,8 +50,10 @@ void setup() {
   tools.addTool("Save", new Button(new Vertex(1.0 / 6.0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
   tools.addTool("Rectangle", new Button(new Vertex(2.0 / 6.0, 0), new Runnable() { public void run() { createRect(); }}));
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
+  tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
   tools.addTool("Add texture", new Button(new Vertex(5.0 / 6.0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
   tools.disableTool("Merge");
+  tools.disableTool("Split");
   
   font = createFont("Verdana", 10);
   textFont(font);
@@ -130,7 +132,7 @@ boolean selectionHasTools() {
 
 void select() {
   if (toSelect == null && !clearSelection) {
-    enableMerge();
+    enableContextSensitiveTools();
     return;
   }
   
@@ -153,7 +155,7 @@ void select() {
   
   toSelect = null;
   clearSelection = false;
-  enableMerge();
+  enableContextSensitiveTools();
 }
 
 void clearSelection() {
@@ -235,6 +237,11 @@ void snap() {
   }
 }
 
+void enableContextSensitiveTools() {
+  enableMerge();
+  enableSplit();
+}
+
 void enableMerge() {
   Vertex selected = getSelectedVertex();
   if (selected == null) {
@@ -248,6 +255,28 @@ void enableMerge() {
       return;
     }
   }
+  
+  tools.disableTool("Merge");
+}
+
+void enableSplit() {
+  Vertex selected = getSelectedVertex();
+  if (selected == null || selected.shapes.isEmpty()) {
+    tools.disableTool("Split");
+  } else if (selected.shapes.size() > 1) {
+    tools.enableTool("Split");
+  } else {
+    int count = 0;
+    for (Vertex v : selected.shapes.iterator().next().corners) {
+      if (selected == v) {
+        count++;
+      }
+    }
+    
+    if (count > 1) {
+      tools.enableTool("Split");
+    }
+  }
 }
 
 void merge() {
@@ -256,17 +285,43 @@ void merge() {
     return;
   }
   
-  Vertex mergeCandidate = null;
+  ArrayList<Vertex> mergeCandidates = new ArrayList<Vertex>();
   for (Vertex v : scene.vertices) {
     if (selected != v && v.grab(selected.x, selected.y)) {
-      mergeCandidate = v;
-      break;
+      mergeCandidates.add(v);
     }
   }
   
-  if (mergeCandidate != null) {
-    selected.merge(mergeCandidate);
+  for (Vertex v : mergeCandidates) {
+    selected.merge(v);
   }
+  
+  enableContextSensitiveTools();
+}
+
+void split() {
+  Vertex selected = getSelectedVertex();
+  if (selected == null) {
+    return;
+  }
+  
+  boolean first = true;
+  for (Rect s : selected.shapes) {
+    for (int i = 0; i < s.corners.length; i++) {
+      if (selected == s.corners[i]) {
+        if (first) {
+          first = false;
+        } else {
+          Vertex replacement = new Vertex(selected.x, selected.y);
+          replacement.addShape(s);
+          scene.vertices.add(replacement);
+          s.corners[i] = replacement;
+        }
+      }
+    }
+  }
+  
+  enableContextSensitiveTools();
 }
 
 void loadScene(File f) {
