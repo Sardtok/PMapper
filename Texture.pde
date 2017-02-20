@@ -11,6 +11,16 @@ abstract class Texture implements Layer {
   }
   
   void select() {
+    Rect s = getSelectedShape();
+    
+    if (s != null) {
+      s.setTexture(this);
+    }
+    
+    textureWindow.clearSelection();
+    textureWindow.addSelected(this);
+    
+    clearSelection = false;
   }
 
   abstract PImage getImage();

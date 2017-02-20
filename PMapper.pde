@@ -70,9 +70,11 @@ void draw() {
   translate(width / 2, height / 2);
   scale(scale);
   
-  scene.draw();
+  if (mode != Mode.EDIT_UVS) {
+    scene.draw();
+  }
 
-  if (mode == Mode.EDIT_SCENE) {
+  if (mode != Mode.PRESENTATION) {
     drawHandles();
     drawButtons();
     textureWindow.draw();
@@ -86,7 +88,12 @@ void drawHandles() {
   strokeWeight(2.0 / scale);
   stroke(#ff0000);
 
-  scene.drawHandles();
+  if (mode == Mode.EDIT_SCENE) {
+    scene.drawHandles();
+  } else {
+    Texture selectedTexture = (Texture) textureWindow.selected.iterator().next();
+  }
+  
   tools.position.drawHandle();
   textureWindow.position.drawHandle();
   shapeWindow.position.drawHandle();
@@ -198,6 +205,7 @@ void mouseClicked() {
   }
   
   shapeWindow.click();
+  textureWindow.click();
   
   select();
 }
@@ -222,6 +230,35 @@ Vertex getSelectedVertex() {
   }
 
   return selection.iterator().next();
+}
+
+Rect getSelectedShape() {
+  Set<Rect> selectedShapes = new HashSet<Rect>();
+  for (Vertex v : selection) {
+    selectedShapes.addAll(v.shapes);
+  }
+  
+  Iterator<Rect> it = selectedShapes.iterator();
+  while (it.hasNext()) {
+    boolean allSelected = true;
+    Rect r = it.next();
+    for (Vertex v : r.corners) {
+      if (!selection.contains(v)) {
+        allSelected = false;
+        break;
+      }
+    }
+    
+    if (!allSelected) {
+      it.remove();
+    }
+  }
+  
+  if (selectedShapes.size() == 1) {
+    return selectedShapes.iterator().next();
+  }
+  
+  return null;
 }
 
 void snap() {
