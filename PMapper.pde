@@ -18,6 +18,7 @@ Selectable toSelect;
 boolean clearSelection;
 
 Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
+Toolbar videoControls = new Toolbar(new Vertex(-0.9, 0.9));
 LayerWindow textureWindow;
 LayerWindow shapeWindow;
 PFont font;
@@ -54,6 +55,10 @@ void setup() {
   tools.addTool("Add texture", new Button(new Vertex(5.0 / 6.0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
   tools.disableTool("Merge");
   tools.disableTool("Split");
+
+  videoControls.addTool("Play", new Button(new Vertex(0, 1.0 / 2.0), new Runnable() { public void run() { play(); }}));
+  videoControls.addTool("Pause", new Button(new Vertex(1.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { pause(); }}));
+  videoControls.addTool("Rewind", new Button(new Vertex(2.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { rewind(); }}));
   
   font = createFont("Verdana", 10);
   textFont(font);
@@ -84,6 +89,16 @@ void draw() {
   mousePosition = null;
 }
 
+void exit() {
+  for (Texture t : scene.textures.values()) {
+    if (t instanceof MovieTexture) {
+      ((MovieTexture) t).movie.stop();
+    }
+  }
+  
+  super.exit();
+}
+
 void drawHandles() {
   strokeWeight(2.0 / scale);
   stroke(#ff0000);
@@ -95,12 +110,14 @@ void drawHandles() {
   }
   
   tools.position.drawHandle();
+  videoControls.position.drawHandle();
   textureWindow.position.drawHandle();
   shapeWindow.position.drawHandle();
 }
 
 void drawButtons() {
   tools.draw();
+  videoControls.draw();
 }
 
 Vertex getMousePosition() {
@@ -121,6 +138,8 @@ void mousePressed() {
   if (toSelect == null && !shiftDown) {
     if (tools.position.grab(mouse.x, mouse.y)) {
       toSelect = tools.position;
+    } else if (videoControls.position.grab(mouse.x, mouse.y)) {
+      toSelect = videoControls.position;
     } else if (textureWindow.position.grab(mouse.x, mouse.y)) {
       toSelect = textureWindow.position;
     } else if (shapeWindow.position.grab(mouse.x, mouse.y)) {
@@ -133,6 +152,7 @@ void mousePressed() {
 
 boolean selectionHasTools() {
   return selection.contains(tools.position)
+    || selection.contains(videoControls.position)
     || selection.contains(textureWindow.position)
     || selection.contains(shapeWindow.position);
 }
@@ -200,7 +220,7 @@ void mouseDragged() {
 }
 
 void mouseClicked() {
-  if (tools.click()) {
+  if (tools.click() || videoControls.click()) {
     return;
   }
   
@@ -359,6 +379,30 @@ void split() {
   }
   
   enableContextSensitiveTools();
+}
+
+void play() {
+  for (Texture t : scene.textures.values()) {
+    if (t instanceof MovieTexture) {
+      ((MovieTexture) t).play();
+    }
+  }
+}
+
+void pause() {
+  for (Texture t : scene.textures.values()) {
+    if (t instanceof MovieTexture) {
+      ((MovieTexture) t).pause();
+    }
+  }
+}
+
+void rewind() {
+  for (Texture t : scene.textures.values()) {
+    if (t instanceof MovieTexture) {
+      ((MovieTexture) t).rewind();
+    }
+  }
 }
 
 void loadScene(File f) {

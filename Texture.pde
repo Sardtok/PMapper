@@ -48,6 +48,21 @@ class MovieTexture extends Texture {
   }
   
   PImage getImage() {
+    if (movie.available()) {
+      movie.read();
+    }
     return movie;
+  }
+  
+  void play() {
+    movie.loop();
+  }
+  
+  void pause() {
+    movie.pause();
+  }
+  
+  void rewind() {
+    movie.jump(0);
   }
 }
