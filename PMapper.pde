@@ -7,10 +7,12 @@ Vertex mousePosition;
 
 Mode mode = Mode.EDIT_SCENE;
 float scale;
+float invScale;
 float VERTEX_SIZE;
 float VERTEX_SIZE_SQUARED;
 float BUTTON_SIZE;
 float BUTTON_SIZE_SQUARED;
+float BORDER_SIZE;
 
 Set<Vertex> selection = new HashSet<Vertex>();
 PGraphics selectionBuffer;
@@ -25,6 +27,8 @@ PFont font;
 PImage icons;
 
 Scene scene = new Scene();
+PShader texShader;
+PShader colShader;
 color shapeColors[] = {
   #4080ff,
   #ff4080,
@@ -35,16 +39,19 @@ color shapeColors[] = {
 };
 
 void setup() {
-  size(1280, 800, P2D);
-  selectionBuffer = createGraphics(width, height, P2D);
+  size(1280, 800, P3D);
+  ortho(-width/2f, width/2f, -height/2f, height/2f, -100.0f, 100.0f);
+  selectionBuffer = createGraphics(width, height, P3D);
   ellipseMode(RADIUS);
   textureMode(NORMAL);
   scale = min(width, height) / 2.0;
+  invScale = 1.0 / scale;
 
-  VERTEX_SIZE = 5.0 / scale;
+  VERTEX_SIZE = 5.0 * invScale;
   VERTEX_SIZE_SQUARED = VERTEX_SIZE * VERTEX_SIZE;
-  BUTTON_SIZE = 10.0 / scale;
+  BUTTON_SIZE = 10.0 * invScale;
   BUTTON_SIZE_SQUARED = BUTTON_SIZE * BUTTON_SIZE;
+  BORDER_SIZE = invScale;
   
   icons = loadImage("Icons.png");
   tools.addTool("Load", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load scene", "loadScene"); }}));
@@ -65,20 +72,26 @@ void setup() {
   textureWindow = new LayerWindow("Textures", new Vertex(-width / (scale * 2) + 0.1, -0.5));
   shapeWindow = new LayerWindow("Shapes", new Vertex(width / (scale * 2) - 0.3, -0.5));
   
+  texShader = loadShader("quadtexfrag.glsl", "quadtexvert.glsl");
+  colShader = loadShader("quadcolfrag.glsl", "quadcolvert.glsl");
   createRect();
 }
 
 void draw() {
+  ((PGraphicsOpenGL) g).modelview.m23 = 0;
+  
   background(0);
   noStroke();
 
   translate(width / 2, height / 2);
-  scale(scale);
+  scale(scale, scale, 1.0);
   
   if (mode != Mode.EDIT_UVS) {
     scene.draw();
   }
 
+  resetShader();
+  
   if (mode != Mode.PRESENTATION) {
     drawHandles();
     drawButtons();
@@ -100,9 +113,6 @@ void exit() {
 }
 
 void drawHandles() {
-  strokeWeight(2.0 / scale);
-  stroke(#ff0000);
-
   if (mode == Mode.EDIT_SCENE) {
     scene.drawHandles();
   } else {
@@ -122,7 +132,7 @@ void drawButtons() {
 
 Vertex getMousePosition() {
   if (mousePosition == null) {
-    mousePosition = new Vertex((mouseX - width / 2.0) / scale, (mouseY - height / 2.0) / scale);
+    mousePosition = new Vertex((mouseX - width / 2.0) * invScale, (mouseY - height / 2.0) * invScale);
   }
 
   return mousePosition;
@@ -204,13 +214,17 @@ void toggleSelection(Iterable<Vertex> vertexIterator) {
 }
 
 void mouseDragged() {
-  float dX = (mouseX - pmouseX) / scale;
-  float dY = (mouseY - pmouseY) / scale;
+  float dX = (mouseX - pmouseX) * invScale;
+  float dY = (mouseY - pmouseY) * invScale;
   select();
 
   for (Vertex v : selection) {
     v.x += dX;
     v.y += dY;
+    
+    for (Rect s : v.shapes) {
+      s.dirty = true;
+    }
   }
 
   tools.disableTool("Merge");

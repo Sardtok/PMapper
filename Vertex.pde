@@ -32,12 +32,15 @@ class Vertex implements Selectable {
       return;
     }
 
+    fill(#ff0000);
+    ellipse(x, y, VERTEX_SIZE + BORDER_SIZE, VERTEX_SIZE + BORDER_SIZE);
+    
     if (selection.contains(this)) {
       fill(#ffa0a0);
     } else {
       fill(#ffffff);
     }
-    ellipse(x, y, VERTEX_SIZE, VERTEX_SIZE);
+    ellipse(x, y, VERTEX_SIZE - BORDER_SIZE, VERTEX_SIZE - BORDER_SIZE);
     handleDrawn = true;
   }
 

@@ -44,7 +44,7 @@ class LayerWindow { //<>//
 
     g.endDraw();
 
-    image(g, position.x, position.y, g.width / scale, g.height / scale);
+    image(g, position.x, position.y, g.width * invScale, g.height * invScale);
     position.handleDrawn = false;
   }
 

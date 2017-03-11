@@ -13,14 +13,16 @@ class Button {
       return;
     }
     
-    stroke(#8080a0);
+    fill(#8080a0);
+    ellipse(x, y, BUTTON_SIZE + BORDER_SIZE, BUTTON_SIZE + BORDER_SIZE);
+    
     fill(#a0a0ff);
     
     if (isOver(x - mouse.x, y - mouse.y)) {
       fill(#ffffff);
     }
     
-    ellipse(x, y, BUTTON_SIZE, BUTTON_SIZE);
+    ellipse(x, y, BUTTON_SIZE - BORDER_SIZE, BUTTON_SIZE - BORDER_SIZE);
     
     beginShape(QUADS);
     noStroke();

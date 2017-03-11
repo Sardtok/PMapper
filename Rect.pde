@@ -2,10 +2,8 @@ class Rect implements Selectable, Layer {
   Vertex corners[] = new Vertex[4];
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
   
-  boolean rbDirty = true;
-  Vertex rectBuf[][] = new Vertex[5][5];
-  boolean uvbDirty = true;
-  Vertex uvBuf[][] = new Vertex[5][5];
+  boolean dirty = true;
+  float buffer[][] = new float[4][5];
   
   Texture texture;
   color c = #ffffff;
@@ -29,63 +27,68 @@ class Rect implements Selectable, Layer {
     beginShape(QUADS);
     
     if (texture != null) {
+      shader(texShader);
       texture(texture.getImage());
       tint(c);
     } else {
+      shader(colShader);
       fill(c);
     }
     
-    if (rbDirty) {
-      populateBuffer(rectBuf, corners);
+    if (dirty) {
+      populateBuffer();
     }
     
-    if (uvbDirty) {
-      populateBuffer(uvBuf, uvs);
+    for (int i = 0; i < buffer.length; i++) {
+      vertex(buffer[i][0], buffer[i][1], buffer[i][2], buffer[i][3], buffer[i][4]);
     }
     
-    for (int i = 0; i < 4; i++) {
-      for (int j = 0; j < 4; j++) {
-        rectBuf[i][j].draw(uvBuf[i][j]);
-        rectBuf[i + 1][j].draw(uvBuf[i + 1][j]);
-        rectBuf[i + 1][j + 1].draw(uvBuf[i + 1][j + 1]);
-        rectBuf[i][j + 1].draw(uvBuf[i][j + 1]);
-      }
+    for (Vertex v : corners) {
+      v.handleDrawn = false;
     }
     
     endShape();
   }
   
-  void populateBuffer(Vertex[][] buffer, Vertex[] original) {
-    buffer[0][0] = original[0];
-    buffer[4][0] = original[1];
-    buffer[4][4] = original[2];
-    buffer[0][4] = original[3];
+  void populateBuffer() {
+    for (int i = 0; i < buffer.length; i++) {
+      buffer[i][0] = corners[i].x;
+      buffer[i][1] = corners[i].y;
+      buffer[i][3] = uvs[i].x;
+      buffer[i][4] = uvs[i].y;
+    }
     
+    float dx1 = buffer[2][0] - buffer[0][0];
+    float dy1 = buffer[2][1] - buffer[0][1];
+    float dx2 = buffer[3][0] - buffer[1][0];
+    float dy2 = buffer[3][1] - buffer[1][1];
+    float dx3 = buffer[0][0] - buffer[1][0];
+    float dy3 = buffer[0][1] - buffer[1][1];
     
-    buffer[0][2] = buffer[0][0].middle(buffer[0][4]);
-    buffer[2][0] = buffer[0][0].middle(buffer[4][0]);
-    buffer[2][4] = buffer[4][4].middle(buffer[0][4]);
-    buffer[4][2] = buffer[4][0].middle(buffer[4][4]);
-    buffer[2][2] = buffer[2][0].middle(buffer[2][4]);
+    float crs = dx1 * dy2 - dy1 * dx2;
+    float cqpr = dx1 * dy3 - dy1 * dx3;
+    float cqps = dx2 * dy3 - dy2 * dx3;
     
-    buffer[0][1] = buffer[0][0].middle(buffer[0][2]);
-    buffer[0][3] = buffer[0][2].middle(buffer[0][4]);
-    buffer[2][1] = buffer[2][0].middle(buffer[2][2]);
-    buffer[2][3] = buffer[2][2].middle(buffer[2][4]);
-    buffer[4][1] = buffer[4][0].middle(buffer[4][2]);
-    buffer[4][3] = buffer[4][2].middle(buffer[4][4]);
+    float t = cqps / crs;
+    float u = cqpr / crs;
     
-    buffer[1][0] = buffer[0][0].middle(buffer[2][0]);
-    buffer[1][1] = buffer[0][1].middle(buffer[2][1]);
-    buffer[1][2] = buffer[0][2].middle(buffer[2][2]);
-    buffer[1][3] = buffer[0][3].middle(buffer[2][3]);
-    buffer[1][4] = buffer[0][4].middle(buffer[2][4]);
+    buffer[0][2] = 1.0 / (1.0 - t);
+    buffer[0][3] *= buffer[0][2];
+    buffer[0][4] *= buffer[0][2];
     
-    buffer[3][0] = buffer[2][0].middle(buffer[4][0]);
-    buffer[3][1] = buffer[2][1].middle(buffer[4][1]);
-    buffer[3][2] = buffer[2][2].middle(buffer[4][2]);
-    buffer[3][3] = buffer[2][3].middle(buffer[4][3]);
-    buffer[3][4] = buffer[2][4].middle(buffer[4][4]);
+    buffer[1][2] = 1.0 / (1.0 - u);
+    buffer[1][3] *= buffer[1][2];
+    buffer[1][4] *= buffer[1][2];
+    
+    buffer[2][2] = 1.0 / (t);
+    buffer[2][3] *= buffer[2][2];
+    buffer[2][4] *= buffer[2][2];
+    
+    buffer[3][2] = 1.0 / (u);
+    buffer[3][3] *= buffer[3][2];
+    buffer[3][4] *= buffer[3][2];
+    
+    dirty = false;
   }
   
   void drawHandles() {
