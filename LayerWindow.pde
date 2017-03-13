@@ -67,6 +67,11 @@ class LayerWindow { //<>//
 
     fitToText(l.getName());
   }
+  
+  void clear() {
+    layers.clear();
+    selected.clear();
+  }
 
   void fitToText(String text) {
     float w = textWidth(text);

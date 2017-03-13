@@ -144,6 +144,7 @@ class Rect implements Selectable, Layer {
   JSONObject toJSON() {
     JSONObject json = new JSONObject();
     JSONArray jsonCorners = new JSONArray();
+    JSONArray jsonUVs = new JSONArray();
     
     jsonCorners.setInt(0, scene.indexOf(corners[0]));
     jsonCorners.setInt(1, scene.indexOf(corners[1]));
@@ -152,13 +153,20 @@ class Rect implements Selectable, Layer {
     
     json.setJSONArray("corners", jsonCorners);
     
+    jsonUVs.setInt(0, scene.indexOfUV(uvs[0]));
+    jsonUVs.setInt(1, scene.indexOfUV(uvs[1]));
+    jsonUVs.setInt(2, scene.indexOfUV(uvs[2]));
+    jsonUVs.setInt(3, scene.indexOfUV(uvs[3]));
+    
+    json.setJSONArray("uvs", jsonUVs);
+    
     json.setFloat("red", red(c));
     json.setFloat("green", green(c));
     json.setFloat("blue", blue(c));
     json.setFloat("alpha", alpha(c));
     
     if (texture != null) {
-      json.setString("texture", "PATH");
+      json.setString("texture", scene.getTexturePath(texture));
     }
     
     return json;

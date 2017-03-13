@@ -438,6 +438,10 @@ void saveScene(File f) {
 }
 
 void loadTexture(File f) {
+  loadTexture(f, scene);
+}
+
+void loadTexture(File f, Scene scene) {
   if (f == null) {
     return;
   }

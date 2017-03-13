@@ -22,7 +22,7 @@ abstract class Texture implements Layer {
     
     clearSelection = false;
   }
-
+  
   abstract PImage getImage();
 }
 
