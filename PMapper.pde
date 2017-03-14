@@ -2,8 +2,13 @@ import java.awt.*;
 import java.util.*;
 import processing.video.*;
 
+boolean left;
+boolean right;
+boolean up;
+boolean down;
 boolean shiftDown;
 Vertex mousePosition;
+int previousNudge;
 
 Mode mode = Mode.EDIT_SCENE;
 float scale;
@@ -13,6 +18,7 @@ float VERTEX_SIZE_SQUARED;
 float BUTTON_SIZE;
 float BUTTON_SIZE_SQUARED;
 float BORDER_SIZE;
+float NUDGE = 0.25;
 
 Set<Vertex> selection = new HashSet<Vertex>();
 PGraphics selectionBuffer;
@@ -86,6 +92,11 @@ void draw() {
   translate(width / 2, height / 2);
   scale(scale, scale, 1.0);
   
+  
+  if (mode != Mode.PRESENTATION) {
+    move();
+  }
+  
   if (mode != Mode.EDIT_UVS) {
     scene.draw();
   }
@@ -100,6 +111,42 @@ void draw() {
   }
 
   mousePosition = null;
+}
+
+void move() {
+  int diff = frameCount - previousNudge;
+  if (diff < 5 || !(left || right || up || down)) {
+    return;
+  }
+  
+  float x = 0;
+  float y = 0;
+  if (left) {
+    x -= NUDGE * invScale;
+  }
+  
+  if (right) {
+    x += NUDGE * invScale;
+  }
+  
+  if (up) {
+    y -= NUDGE * invScale;
+  }
+  
+  if (down) {
+    y += NUDGE * invScale;
+  }
+  
+  for (Vertex v : selection) {
+    v.x += x;
+    v.y += y;
+    
+    for (Rect s : v.shapes) {
+      s.dirty = true;
+    }
+  }
+  
+  previousNudge = frameCount;
 }
 
 void exit() {
@@ -246,10 +293,18 @@ void mouseClicked() {
 
 void keyPressed() {
   shiftDown |= keyCode == SHIFT;
+  left |= keyCode == LEFT;
+  right |= keyCode == RIGHT;
+  up |= keyCode == UP;
+  down |= keyCode == DOWN;
 }
 
 void keyReleased() {
   shiftDown ^= keyCode == SHIFT;
+  left ^= keyCode == LEFT;
+  right ^= keyCode == RIGHT;
+  up ^= keyCode == UP;
+  down ^= keyCode == DOWN;
 }
 
 void createRect() {
