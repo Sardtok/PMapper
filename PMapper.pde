@@ -31,6 +31,7 @@ LayerWindow textureWindow;
 LayerWindow shapeWindow;
 PFont font;
 PImage icons;
+boolean highlightBackground;
 
 Scene scene = new Scene();
 PShader texShader;
@@ -66,6 +67,7 @@ void setup() {
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
   tools.addTool("Add texture", new Button(new Vertex(5.0 / 6.0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
+  tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 0.5), new Runnable() { public void run() { highlightBackground = !highlightBackground; }}));
   tools.disableTool("Merge");
   tools.disableTool("Split");
 
@@ -86,7 +88,7 @@ void setup() {
 void draw() {
   ((PGraphicsOpenGL) g).modelview.m23 = 0;
   
-  background(0);
+  background(highlightBackground ? #ff0000 : 0);
   noStroke();
 
   translate(width / 2, height / 2);
