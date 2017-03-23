@@ -46,9 +46,9 @@ color shapeColors[] = {
 };
 
 void setup() {
-  size(1280, 800, P3D);
-  ortho(-width/2f, width/2f, -height/2f, height/2f, -100.0f, 100.0f);
-  selectionBuffer = createGraphics(width, height, P3D);
+  //fullScreen(P2D);
+  size(1280, 800, P2D);
+  selectionBuffer = createGraphics(width, height, P2D);
   ellipseMode(RADIUS);
   textureMode(NORMAL);
   scale = min(width, height) / 2.0;
@@ -81,18 +81,15 @@ void setup() {
   shapeWindow = new LayerWindow("Shapes", new Vertex(width / (scale * 2) - 0.3, -0.5));
   
   texShader = loadShader("quadtexfrag.glsl", "quadtexvert.glsl");
-  colShader = loadShader("quadcolfrag.glsl", "quadcolvert.glsl");
   createRect();
 }
 
 void draw() {
-  ((PGraphicsOpenGL) g).modelview.m23 = 0;
-  
   background(highlightBackground ? #ff0000 : 0);
   noStroke();
 
   translate(width / 2, height / 2);
-  scale(scale, scale, 1.0);
+  scale(scale);
   
   
   if (mode != Mode.PRESENTATION) {
@@ -102,8 +99,6 @@ void draw() {
   if (mode != Mode.EDIT_UVS) {
     scene.draw();
   }
-
-  resetShader();
   
   if (mode != Mode.PRESENTATION) {
     drawHandles();
@@ -113,6 +108,10 @@ void draw() {
   }
 
   mousePosition = null;
+}
+
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void move() {

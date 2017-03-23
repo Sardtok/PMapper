@@ -3,7 +3,7 @@ class Rect implements Selectable, Layer {
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
   
   boolean dirty = true;
-  float buffer[][] = new float[4][5];
+  PShape buffer;
   
   Texture texture;
   color c = #ffffff;
@@ -24,70 +24,64 @@ class Rect implements Selectable, Layer {
   }
   
   void draw() {
-    beginShape(QUADS);
-    
-    if (texture != null) {
-      shader(texShader);
-      texture(texture.getImage());
-      tint(c);
-    } else {
-      shader(colShader);
-      fill(c);
-    }
-    
     if (dirty) {
       populateBuffer();
     }
     
-    for (int i = 0; i < buffer.length; i++) {
-      vertex(buffer[i][0], buffer[i][1], buffer[i][2], buffer[i][3], buffer[i][4]);
+    if (texture != null) {
+      shader(texShader);
     }
+    shape(buffer);
     
     for (Vertex v : corners) {
       v.handleDrawn = false;
     }
     
-    endShape();
+    resetShader();
   }
   
   void populateBuffer() {
-    for (int i = 0; i < buffer.length; i++) {
-      buffer[i][0] = corners[i].x;
-      buffer[i][1] = corners[i].y;
-      buffer[i][3] = uvs[i].x;
-      buffer[i][4] = uvs[i].y;
+    buffer = createShape();
+    buffer.beginShape(QUADS);
+    
+    if (texture != null) {
+      float dx1 = corners[2].x - corners[0].x;
+      float dy1 = corners[2].y - corners[0].y;
+      float dx2 = corners[3].x - corners[1].x;
+      float dy2 = corners[3].y - corners[1].y;
+      float dx3 = corners[0].x - corners[1].x;
+      float dy3 = corners[0].y - corners[1].y;
+    
+      float crs = dx1 * dy2 - dy1 * dx2;
+      float cqpr = dx1 * dy3 - dy1 * dx3;
+      float cqps = dx2 * dy3 - dy2 * dx3;
+    
+      float t = cqps / crs;
+      float u = cqpr / crs;
+      
+      buffer.texture(texture.getImage());
+      buffer.tint(c);
+
+      buffer.attrib("texCoordQ", 1.0 / (1.0 - t));
+      buffer.vertex(corners[0].x, corners[0].y, uvs[0].x, uvs[0].y);
+
+      buffer.attrib("texCoordQ", 1.0 / (1.0 - u));
+      buffer.vertex(corners[1].x, corners[1].y, uvs[1].x, uvs[1].y);
+
+      buffer.attrib("texCoordQ", 1.0 / (t));
+      buffer.vertex(corners[2].x, corners[2].y, uvs[2].x, uvs[2].y);
+
+      buffer.attrib("texCoordQ", 1.0 / (u));
+      buffer.vertex(corners[3].x, corners[3].y, uvs[3].x, uvs[3].y);
+    } else {
+      buffer.fill(c);
+      buffer.vertex(corners[0].x, corners[0].y);
+      buffer.vertex(corners[1].x, corners[1].y);
+      buffer.vertex(corners[2].x, corners[2].y);
+      buffer.vertex(corners[3].x, corners[3].y);
     }
-    
-    float dx1 = buffer[2][0] - buffer[0][0];
-    float dy1 = buffer[2][1] - buffer[0][1];
-    float dx2 = buffer[3][0] - buffer[1][0];
-    float dy2 = buffer[3][1] - buffer[1][1];
-    float dx3 = buffer[0][0] - buffer[1][0];
-    float dy3 = buffer[0][1] - buffer[1][1];
-    
-    float crs = dx1 * dy2 - dy1 * dx2;
-    float cqpr = dx1 * dy3 - dy1 * dx3;
-    float cqps = dx2 * dy3 - dy2 * dx3;
-    
-    float t = cqps / crs;
-    float u = cqpr / crs;
-    
-    buffer[0][2] = 1.0 / (1.0 - t);
-    buffer[0][3] *= buffer[0][2];
-    buffer[0][4] *= buffer[0][2];
-    
-    buffer[1][2] = 1.0 / (1.0 - u);
-    buffer[1][3] *= buffer[1][2];
-    buffer[1][4] *= buffer[1][2];
-    
-    buffer[2][2] = 1.0 / (t);
-    buffer[2][3] *= buffer[2][2];
-    buffer[2][4] *= buffer[2][2];
-    
-    buffer[3][2] = 1.0 / (u);
-    buffer[3][3] *= buffer[3][2];
-    buffer[3][4] *= buffer[3][2];
-    
+
+    buffer.endShape();
     dirty = false;
   }
   
