@@ -4,6 +4,7 @@ class LayerWindow { //<>//
   Vertex position;
   String title;
   PGraphics g;
+  PGraphics nextG;
 
   int fontHeight;
   int width;
@@ -17,6 +18,8 @@ class LayerWindow { //<>//
   }
 
   void draw() {
+    g = nextG;
+    
     g.beginDraw();
     g.background(#002040);
     
@@ -77,7 +80,7 @@ class LayerWindow { //<>//
     float w = textWidth(text);
     width = max(ceil(w) + 4, width);
     height = ceil(height + fontHeight + 4);
-    g = createGraphics(width, height, P2D);
+    nextG = createGraphics(width, height, P2D);
   }
   
   void click() {
