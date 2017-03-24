@@ -24,6 +24,7 @@ abstract class Texture implements Layer {
   }
   
   abstract PImage getImage();
+  abstract void update();
 }
 
 class ImageTexture extends Texture {
@@ -37,20 +38,32 @@ class ImageTexture extends Texture {
   PImage getImage() {
     return image;
   }
+  
+  void update() {
+    // Do nothing
+  }
 }
 
-class MovieTexture extends Texture {
+abstract class MovieTexture extends Texture {
+  MovieTexture(String name) {
+    super(name);
+  }
+  
+  abstract void play();
+  abstract void pause();
+  abstract void rewind();
+  abstract void stop();
+}
+
+class PMovieTexture extends MovieTexture {
   Movie movie;
   
-  MovieTexture(Movie movie, String name) {
+  PMovieTexture(Movie movie, String name) {
     super(name);
     this.movie = movie;
   }
   
   PImage getImage() {
-    if (movie.available()) {
-      movie.read();
-    }
     return movie;
   }
   
@@ -64,5 +77,51 @@ class MovieTexture extends Texture {
   
   void rewind() {
     movie.jump(0);
+  }
+  
+  void stop() {
+    movie.stop();
+  }
+  
+  void update() {
+    if (movie.available()) {
+      movie.read();
+    }
+  }
+}
+
+class GLMovieTexture extends MovieTexture {
+  GLMovie movie;
+  
+  GLMovieTexture(GLMovie movie, String name) {
+    super(name);
+    this.movie = movie;
+  }
+  
+  PImage getImage() {
+    return movie;
+  }
+  
+  void play() {
+    movie.loop();
+  }
+  
+  void pause() {
+    movie.pause();
+  }
+  
+  void rewind() {
+    movie.jump(0);
+  }
+  
+  void stop() {
+    pause();
+    rewind();
+  }
+  
+  void update() {
+    if (movie.available()) {
+      movie.read();
+    }
   }
 }

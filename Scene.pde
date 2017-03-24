@@ -25,6 +25,10 @@ class Scene {
   }
 
   void draw() {
+    for (Texture t : textures.values()) {
+      t.update();
+    }
+    
     for (Rect s : shapes) {
       s.draw();
     }

@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.util.*;
 import processing.video.*;
+import gohai.glvideo.*;
 
 boolean left;
 boolean right;
@@ -35,7 +36,7 @@ boolean highlightBackground;
 
 Scene scene = new Scene();
 PShader texShader;
-PShader colShader;
+boolean useGLMovie;
 color shapeColors[] = {
   #4080ff,
   #ff4080,
@@ -81,6 +82,10 @@ void setup() {
   shapeWindow = new LayerWindow("Shapes", new Vertex(width / (scale * 2) - 0.3, -0.5));
   
   texShader = loadShader("quadtexfrag.glsl", "quadtexvert.glsl");
+  
+  String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
+  useGLMovie = System.getProperty("os.arch").equals("arm") || osName.contains("mac") || osName.contains("darwin");
+  
   createRect();
 }
 
@@ -108,10 +113,6 @@ void draw() {
   }
 
   mousePosition = null;
-}
-
-void movieEvent(Movie m) {
-  m.read();
 }
 
 void move() {
@@ -153,7 +154,7 @@ void move() {
 void exit() {
   for (Texture t : scene.textures.values()) {
     if (t instanceof MovieTexture) {
-      ((MovieTexture) t).movie.stop();
+      ((MovieTexture) t).stop();
     }
   }
   
@@ -506,8 +507,10 @@ void loadTexture(File f, Scene scene) {
   Texture t = null;
   if (img != null && img.width >= 0) {
     t = new ImageTexture(img, f.getName());
+  } else if (useGLMovie) {
+    t = new GLMovieTexture(new GLMovie(this, f.getAbsolutePath()), f.getName());
   } else {
-    t = new MovieTexture(new Movie(this, f.getAbsolutePath()), f.getName());
+    t = new PMovieTexture(new Movie(this, f.getAbsolutePath()), f.getName());
   }
   
   if (!scene.addTexture(t, f.getAbsolutePath())) {
