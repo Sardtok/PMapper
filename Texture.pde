@@ -1,5 +1,5 @@
 abstract class Texture implements Layer {
-  Set<Rect> uvs = new LinkedHashSet<Rect>();
+  Set<Quad> uvs = new LinkedHashSet<Quad>();
   String name;
   
   Texture(String name) {
@@ -11,7 +11,7 @@ abstract class Texture implements Layer {
   }
   
   void select() {
-    Rect s = getSelectedShape();
+    Quad s = getSelectedShape();
     
     if (s != null) {
       s.setTexture(this);

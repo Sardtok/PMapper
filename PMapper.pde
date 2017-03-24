@@ -64,7 +64,7 @@ void setup() {
   icons = loadImage("Icons.png");
   tools.addTool("Load", new Button(new Vertex(0, 0), new Runnable() { public void run() { selectInput("Load scene", "loadScene"); }}));
   tools.addTool("Save", new Button(new Vertex(1.0 / 6.0, 0), new Runnable() { public void run() { selectOutput("Save scene", "saveScene"); }}));
-  tools.addTool("Rectangle", new Button(new Vertex(2.0 / 6.0, 0), new Runnable() { public void run() { createRect(); }}));
+  tools.addTool("Quadangle", new Button(new Vertex(2.0 / 6.0, 0), new Runnable() { public void run() { createQuad(); }}));
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
   tools.addTool("Add texture", new Button(new Vertex(5.0 / 6.0, 0), new Runnable() { public void run() { selectInput("Load texture", "loadTexture"); }}));
@@ -86,7 +86,7 @@ void setup() {
   String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
   useGLMovie = System.getProperty("os.arch").equals("arm") || osName.contains("mac") || osName.contains("darwin");
   
-  createRect();
+  createQuad();
 }
 
 void draw() {
@@ -143,7 +143,7 @@ void move() {
     v.x += x;
     v.y += y;
     
-    for (Rect s : v.shapes) {
+    for (Quad s : v.shapes) {
       s.dirty = true;
     }
   }
@@ -234,7 +234,7 @@ void select() {
   }
   
   for (Vertex v : selection) {
-    for (Rect s : v.shapes) {
+    for (Quad s : v.shapes) {
       shapeWindow.addSelected(s);
     }
   }
@@ -271,7 +271,7 @@ void mouseDragged() {
     v.x += dX;
     v.y += dY;
     
-    for (Rect s : v.shapes) {
+    for (Quad s : v.shapes) {
       s.dirty = true;
     }
   }
@@ -309,10 +309,10 @@ void keyReleased() {
   down ^= keyCode == DOWN;
 }
 
-void createRect() {
-  Rect r = new Rect(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
-  scene.addRect(r);
-  r.setName("Rect " + scene.shapes.size());
+void createQuad() {
+  Quad r = new Quad(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
+  scene.addQuad(r);
+  r.setName("Quad " + scene.shapes.size());
 }
 
 Vertex getSelectedVertex() {
@@ -323,16 +323,16 @@ Vertex getSelectedVertex() {
   return selection.iterator().next();
 }
 
-Rect getSelectedShape() {
-  Set<Rect> selectedShapes = new HashSet<Rect>();
+Quad getSelectedShape() {
+  Set<Quad> selectedShapes = new HashSet<Quad>();
   for (Vertex v : selection) {
     selectedShapes.addAll(v.shapes);
   }
   
-  Iterator<Rect> it = selectedShapes.iterator();
+  Iterator<Quad> it = selectedShapes.iterator();
   while (it.hasNext()) {
     boolean allSelected = true;
-    Rect r = it.next();
+    Quad r = it.next();
     for (Vertex v : r.corners) {
       if (!selection.contains(v)) {
         allSelected = false;
@@ -434,7 +434,7 @@ void split() {
   }
   
   boolean first = true;
-  for (Rect s : selected.shapes) {
+  for (Quad s : selected.shapes) {
     for (int i = 0; i < s.corners.length; i++) {
       if (selected == s.corners[i]) {
         if (first) {
@@ -517,7 +517,7 @@ void loadTexture(File f, Scene scene) {
     return;
   }
 
-  for (Rect s : scene.shapes) {
+  for (Quad s : scene.shapes) {
     Collection<Vertex> verts = (Collection<Vertex>) s.getVertices();
     if (selection.containsAll(verts) && verts.containsAll(selection)) {
       s.setTexture(t);

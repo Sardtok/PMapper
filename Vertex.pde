@@ -1,5 +1,5 @@
 class Vertex implements Selectable {
-  Set<Rect> shapes = new HashSet<Rect>();
+  Set<Quad> shapes = new HashSet<Quad>();
   float x, y;
   boolean handleDrawn;
 
@@ -8,7 +8,7 @@ class Vertex implements Selectable {
     this.y = y;
   }
 
-  void addShape(Rect s) {
+  void addShape(Quad s) {
     shapes.add(s);
   }
 
@@ -52,7 +52,7 @@ class Vertex implements Selectable {
 
   void merge(Vertex other) {
     shapes.addAll(other.shapes);
-    for (Rect s : other.shapes) {
+    for (Quad s : other.shapes) {
       s.replace(other, this);
     }
     scene.vertices.remove(other);

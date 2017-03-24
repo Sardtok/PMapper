@@ -1,4 +1,4 @@
-class Rect implements Selectable, Layer {
+class Quad implements Selectable, Layer {
   Vertex corners[] = new Vertex[4];
   Vertex uvs[] = {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1), new Vertex(1, 0)};
   
@@ -7,9 +7,9 @@ class Rect implements Selectable, Layer {
   
   Texture texture;
   color c = #ffffff;
-  String name = "Rect";
+  String name = "Quad";
   
-  Rect(Vertex v0, Vertex v1, Vertex v2, Vertex v3, color c) {
+  Quad(Vertex v0, Vertex v1, Vertex v2, Vertex v3, color c) {
     corners[0] = v0;
     corners[1] = v1;
     corners[2] = v2;

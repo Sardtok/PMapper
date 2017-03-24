@@ -1,10 +1,10 @@
 class Scene {
   Set<Vertex> vertices = new LinkedHashSet<Vertex>();
   Set<Vertex> uvs = new LinkedHashSet<Vertex>();
-  Set<Rect> shapes = new LinkedHashSet<Rect>();
+  Set<Quad> shapes = new LinkedHashSet<Quad>();
   Map<String, Texture> textures = new HashMap<String, Texture>();
 
-  void addRect(Rect r) {
+  void addQuad(Quad r) {
     for (Vertex v : r.corners) {
       vertices.add(v);
     }
@@ -29,7 +29,7 @@ class Scene {
       t.update();
     }
     
-    for (Rect s : shapes) {
+    for (Quad s : shapes) {
       s.draw();
     }
   }
@@ -47,7 +47,7 @@ class Scene {
       }
     }
 
-    for (Rect s : shapes) {
+    for (Quad s : shapes) {
       if (s.grab(x, y)) {
         return s;
       }
@@ -75,7 +75,9 @@ class Scene {
     }
 
     for (int i = 0; i < jsonShapes.size(); i++) {
-      addRect(rectFromJSON(jsonShapes.getJSONObject(i)));
+      Quad q = quadFromJSON(jsonShapes.getJSONObject(i)); 
+      q.name = "Quad " + (i + 1);
+      addQuad(q);
     }
   }
 
@@ -86,7 +88,7 @@ class Scene {
     return new Vertex(x, y);
   }
 
-  Rect rectFromJSON(JSONObject json) {
+  Quad quadFromJSON(JSONObject json) {
     JSONArray corners = json.getJSONArray("corners");
     JSONArray uvs = json.getJSONArray("uvs");
     float red = json.getFloat("red");
@@ -99,7 +101,7 @@ class Scene {
     Vertex v2 = getVertex(corners.getInt(2));
     Vertex v3 = getVertex(corners.getInt(3));
 
-    Rect rect = new Rect(v0, v1, v2, v3, color(red, green, blue, alpha));
+    Quad rect = new Quad(v0, v1, v2, v3, color(red, green, blue, alpha));
 
     rect.uvs[0] = getUV(uvs.getInt(0));
     rect.uvs[1] = getUV(uvs.getInt(1));
@@ -142,7 +144,7 @@ class Scene {
     }
 
     i = 0;
-    for (Rect s : shapes) {
+    for (Quad s : shapes) {
       jsonShapes.setJSONObject(i, s.toJSON());
       i++;
     }
