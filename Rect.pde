@@ -120,6 +120,7 @@ class Rect implements Selectable, Layer {
   void setTexture(Texture t) {
     this.texture = t;
     this.c = #ffffff;
+    dirty = true;
   }
   
   void setName(String name) {
