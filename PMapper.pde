@@ -83,8 +83,7 @@ void setup() {
   
   texShader = loadShader("quadtexfrag.glsl", "quadtexvert.glsl");
   
-  String osName = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-  useGLMovie = System.getProperty("os.arch").equals("arm") || osName.contains("mac") || osName.contains("darwin");
+  useGLMovie = System.getProperty("os.arch").equals("arm");
   
   createQuad();
 }

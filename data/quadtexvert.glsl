@@ -7,11 +7,11 @@ attribute vec2 texCoord;
 attribute float texCoordQ;
 
 varying vec4 vertColor;
-varying vec4 vertTexCoord;
+varying vec3 vertTexCoord;
 
 void main() {
   gl_Position = transform * position;
 
   vertColor = color;
-  vertTexCoord = vec4(texCoord * texCoordQ, 1.0, texCoordQ);
+  vertTexCoord = vec3(texCoord * texCoordQ, texCoordQ);
 }
