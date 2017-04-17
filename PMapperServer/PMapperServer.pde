@@ -1,9 +1,10 @@
 import java.awt.*;
 import java.util.*;
+import processing.net.*;
 import processing.video.*;
 import gohai.glvideo.*;
 
-Mode mode = Mode.EDIT_SCENE;
+Mode mode = Mode.PRESENTATION;
 float scale;
 float invScale;
 float VERTEX_SIZE;
@@ -31,6 +32,9 @@ color shapeColors[] = {
   #40ff80
 };
 
+Server server;
+Client controller;
+
 void setup() {
   //fullScreen(P2D);
   size(1280, 800, P2D);
@@ -49,10 +53,12 @@ void setup() {
   useGLMovie = System.getProperty("os.arch").equals("arm");
   
   loadScene("scene.json");
+  
+  server = new Server(this, 2540);
 }
 
 void draw() {
-  background(highlightBackground ? #ff0000 : 0);
+  background(mode != Mode.PRESENTATION ? #ff0000 : 0);
   noStroke();
 
   translate(width / 2, height / 2);
@@ -72,6 +78,7 @@ void exit() {
     }
   }
   
+  server.stop();
   super.exit();
 }
 
@@ -147,6 +154,23 @@ void rewind() {
     if (t instanceof MovieTexture) {
       ((MovieTexture) t).rewind();
     }
+  }
+}
+
+void serverEvent(Server server, Client client) {
+  if (controller != null) {
+    server.disconnect(client);
+  } else {
+    controller = client;
+    client.write(scene.toJSON().toString());
+    mode = Mode.EDIT_SCENE;
+  }
+}
+
+void disconnectEvent(Client client) {
+  if (client == controller) {
+    mode = Mode.PRESENTATION;
+    controller = null;
   }
 }
 
