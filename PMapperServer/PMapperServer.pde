@@ -22,12 +22,12 @@ Scene scene;
 PShader texShader;
 boolean useGLMovie;
 color shapeColors[] = {
-  #4080ff,
-  #ff4080,
-  #80ff40,
-  #8040ff,
-  #ff8040,
-  #40ff80
+  #2040a0,
+  #a02040,
+  #40a020,
+  #4020a0,
+  #a04020,
+  #20a040
 };
 
 Server server;
