@@ -38,22 +38,6 @@ class Scene {
     }
   }
 
-  Selectable grab(float x, float y) {
-    for (Vertex v : vertices) {
-      if (v.grab(x, y)) {
-        return v;
-      }
-    }
-
-    for (Quad s : shapes) {
-      if (s.grab(x, y)) {
-        return s;
-      }
-    }
-
-    return null;
-  }
-
   void fromJSON(JSONObject json) {
     JSONArray jsonVertices = json.getJSONArray("vertices");
     JSONArray jsonUVs = json.getJSONArray("uvs");

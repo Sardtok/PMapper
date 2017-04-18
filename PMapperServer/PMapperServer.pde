@@ -14,8 +14,6 @@ float NUDGE = 0.25;
 int previousNudge;
 
 Set<Vertex> selection = new HashSet<Vertex>();
-PGraphics selectionBuffer;
-Selectable toSelect;
 boolean clearSelection;
 
 boolean highlightBackground;
@@ -38,7 +36,6 @@ Client controller;
 void setup() {
   //fullScreen(P2D);
   size(1280, 800, P2D);
-  selectionBuffer = createGraphics(width, height, P2D);
   ellipseMode(RADIUS);
   textureMode(NORMAL);
   scale = min(width, height) / 2.0;

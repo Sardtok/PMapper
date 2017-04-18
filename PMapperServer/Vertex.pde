@@ -1,4 +1,4 @@
-class Vertex implements Selectable {
+class Vertex {
   Set<Quad> shapes = new HashSet<Quad>();
   float x, y;
   boolean handleDrawn;
@@ -42,12 +42,6 @@ class Vertex implements Selectable {
     }
     ellipse(x, y, VERTEX_SIZE - BORDER_SIZE, VERTEX_SIZE - BORDER_SIZE);
     handleDrawn = true;
-  }
-
-  boolean grab(float x, float y) {
-    float diffX = this.x - x;
-    float diffY = this.y - y;
-    return (diffX * diffX + diffY * diffY) < VERTEX_SIZE_SQUARED;
   }
 
   void merge(Vertex other) {
