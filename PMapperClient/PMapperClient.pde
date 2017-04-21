@@ -10,7 +10,8 @@ boolean up;
 boolean down;
 boolean shiftDown;
 Vertex mousePosition;
-int previousNudge;
+Vertex serverDelta = new Vertex(0, 0);
+int previousMove;
 
 Mode mode = Mode.EDIT_SCENE;
 float scale;
@@ -108,14 +109,34 @@ void draw() {
 }
 
 void move() {
-  int diff = frameCount - previousNudge;
+  int diff = frameCount - previousMove;
   if (diff < 5 || !(left || right || up || down)) {
     return;
   }
   
   // SEND nudge to server
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "nudge");
+  msg.setBoolean("left", left);
+  msg.setBoolean("right", right);
+  msg.setBoolean("up", up);
+  msg.setBoolean("down", down);
+  sendMessage(msg);
   
-  previousNudge = frameCount;
+  msg = readMessage();
+  JSONArray positions = msg.getJSONArray("positions");
+  for (int i = 0; i < positions.size(); i++) {
+    JSONObject position = positions.getJSONObject(i);
+    int index = position.getInt("vertex");
+    float x = position.getFloat("x");
+    float y = position.getFloat("y");
+    
+    Vertex v = scene.getVertex(index);
+    v.x = x;
+    v.y = y;
+  }
+  
+  previousMove = frameCount;
 }
 
 void exit() {
@@ -189,15 +210,24 @@ void select() {
     }
   }
   
+  JSONObject msg = new JSONObject();
+  JSONArray selected = new JSONArray();
+  int i = 0;
+  msg.setString("type", "select");
+  msg.setJSONArray("selection", selected);
+  
   for (Vertex v : selection) {
     for (Quad s : v.shapes) {
       shapeWindow.addSelected(s);
     }
+    
+    selected.setInt(i, scene.indexOf(v));
   }
   
   toSelect = null;
   clearSelection = false;
   enableContextSensitiveTools();
+  sendMessage(msg);
 }
 
 void clearSelection() {
@@ -310,15 +340,17 @@ void snap() {
     if (selected != v && v.grab(selected.x, selected.y)) {
       selected.x = v.x;
       selected.y = v.y;
-      tools.enableTool("Merge");
+      //tools.enableTool("Merge"); - So scuhrred!
       return;
     }
   }
 }
 
 void enableContextSensitiveTools() {
+  /* Scary tools - consider adding these to server client model
   enableMerge();
   enableSplit();
+  */
 }
 
 void enableMerge() {
@@ -440,4 +472,8 @@ JSONObject readMessage() {
   }
   
   return parseJSONObject(sb.toString());
+}
+
+void sendMessage(JSONObject msg) {
+  client.write(msg.toString());
 }

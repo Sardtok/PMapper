@@ -55,6 +55,8 @@ void setup() {
 }
 
 void draw() {
+  getClientUpdates();
+  
   background(mode != Mode.PRESENTATION ? #ff0000 : 0);
   noStroke();
 
@@ -169,6 +171,109 @@ void disconnectEvent(Client client) {
     mode = Mode.PRESENTATION;
     controller = null;
   }
+}
+
+void getClientUpdates() {
+  if (controller == null || controller.available() == 0) {
+    return;
+  }
+  
+  boolean inProgress = true;
+  int level = 0;
+  StringBuilder sb = new StringBuilder();
+  
+  while (inProgress) {
+    int b = controller.read();
+    if (b == -1) {
+      try {
+        Thread.sleep(10);
+      } catch(InterruptedException ie) {
+      }
+      continue;
+    } else if (b == '{') {
+      level++;
+    } else if (b == '}') {
+      level--;
+    }
+    
+    sb.append((char) b);
+    
+    inProgress = level > 0;
+  }
+  
+  JSONObject msg = parseJSONObject(sb.toString());
+  
+  switch (msg.getString("type")) {
+    case "select":
+      select(msg);
+      break;
+    case "nudge":
+      nudge(msg);
+      break;
+    case "move":
+      move(msg);
+      break;
+  }
+}
+
+void select(JSONObject msg) {
+  clearSelection();
+  
+  JSONArray select = msg.getJSONArray("selection");
+  for (int i = 0; i < select.size(); i++) {
+    selection.add(scene.getVertex(select.getInt(i)));
+  }
+}
+
+void nudge(JSONObject msg) {
+  boolean left = msg.getBoolean("left");
+  boolean right = msg.getBoolean("right");
+  boolean up = msg.getBoolean("up");
+  boolean down = msg.getBoolean("down");
+  
+  JSONObject reply = new JSONObject();
+  JSONArray positions = new JSONArray();
+  int i = 0;
+  reply.setJSONArray("positions", positions);
+  
+  float x = 0;
+  float y = 0;
+  if (left) {
+    x -= NUDGE * invScale;
+  }
+  
+  if (right) {
+    x += NUDGE * invScale;
+  }
+  
+  if (up) {
+    y -= NUDGE * invScale;
+  }
+  
+  if (down) {
+    y += NUDGE * invScale;
+  }
+  
+  for (Vertex v : selection) {
+    v.x += x;
+    v.y += y;
+    
+    for (Quad s : v.shapes) {
+      s.dirty = true;
+    }
+    
+    JSONObject pos = new JSONObject();
+    pos.setInt("vertex", scene.indexOf(v));
+    pos.setFloat("x", v.x);
+    pos.setFloat("y", v.y);
+    positions.setJSONObject(i, pos);
+  }
+  
+  controller.write(reply.toString());
+}
+
+void move(JSONObject msg) {
+  
 }
 
 void loadScene(File f) {
