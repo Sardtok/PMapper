@@ -23,6 +23,7 @@ float BUTTON_SIZE_SQUARED;
 float BORDER_SIZE;
 
 Set<Vertex> selection = new HashSet<Vertex>();
+Vertex selectedVertex;
 PGraphics selectionBuffer;
 Selectable toSelect;
 boolean clearSelection;
@@ -210,6 +211,8 @@ void select() {
     }
   }
   
+  selectedVertex = selection.size() == 1 ? selection.iterator().next() : null;
+  
   JSONObject msg = new JSONObject();
   JSONArray selected = new JSONArray();
   int i = 0;
@@ -259,7 +262,7 @@ void mouseDragged() {
   }
 
   tools.disableTool("Merge");
-  if (selection.size() == 1) {
+  if (selectedVertex != null) {
     snap();
   }
 }
@@ -296,14 +299,6 @@ void createQuad() {
   r.setName("Quad " + scene.shapes.size());
 }
 
-Vertex getSelectedVertex() {
-  if (selection.size() != 1) {
-    return null;
-  }
-
-  return selection.iterator().next();
-}
-
 Quad getSelectedShape() {
   Set<Quad> selectedShapes = new HashSet<Quad>();
   for (Vertex v : selection) {
@@ -334,12 +329,16 @@ Quad getSelectedShape() {
 }
 
 void snap() {
-  Vertex selected = selection.iterator().next();
-
+  if (selectedVertex == null) {
+    return;
+  }
+  
   for (Vertex v : scene.vertices) {
-    if (selected != v && v.grab(selected.x, selected.y)) {
-      selected.x = v.x;
-      selected.y = v.y;
+    if (selectedVertex != v && v.grab(selectedVertex.x, selectedVertex.y)) {
+      serverDelta.x += v.x - selectedVertex.x;
+      serverDelta.y += v.y - selectedVertex.y;
+      selectedVertex.x = v.x;
+      selectedVertex.y = v.y;
       //tools.enableTool("Merge"); - So scuhrred!
       return;
     }
@@ -354,14 +353,13 @@ void enableContextSensitiveTools() {
 }
 
 void enableMerge() {
-  Vertex selected = getSelectedVertex();
-  if (selected == null) {
+  if (selectedVertex == null) {
     tools.disableTool("Merge");
     return;
   }
   
   for (Vertex v : scene.vertices) {
-    if (selected != v && v.grab(selected.x, selected.y)) {
+    if (selectedVertex != v && v.grab(selectedVertex.x, selectedVertex.y)) {
       tools.enableTool("Merge");
       return;
     }
@@ -371,15 +369,14 @@ void enableMerge() {
 }
 
 void enableSplit() {
-  Vertex selected = getSelectedVertex();
-  if (selected == null || selected.shapes.isEmpty()) {
+  if (selectedVertex == null || selectedVertex.shapes.isEmpty()) {
     tools.disableTool("Split");
-  } else if (selected.shapes.size() > 1) {
+  } else if (selectedVertex.shapes.size() > 1) {
     tools.enableTool("Split");
   } else {
     int count = 0;
-    for (Vertex v : selected.shapes.iterator().next().corners) {
-      if (selected == v) {
+    for (Vertex v : selectedVertex.shapes.iterator().next().corners) {
+      if (selectedVertex == v) {
         count++;
       }
     }
@@ -391,39 +388,37 @@ void enableSplit() {
 }
 
 void merge() {
-  Vertex selected = getSelectedVertex();
-  if (selected == null) {
+  if (selectedVertex == null) {
     return;
   }
   
   ArrayList<Vertex> mergeCandidates = new ArrayList<Vertex>();
   for (Vertex v : scene.vertices) {
-    if (selected != v && v.grab(selected.x, selected.y)) {
+    if (selectedVertex != v && v.grab(selectedVertex.x, selectedVertex.y)) {
       mergeCandidates.add(v);
     }
   }
   
   for (Vertex v : mergeCandidates) {
-    selected.merge(v);
+    selectedVertex.merge(v);
   }
   
   enableContextSensitiveTools();
 }
 
 void split() {
-  Vertex selected = getSelectedVertex();
-  if (selected == null) {
+  if (selectedVertex == null) {
     return;
   }
   
   boolean first = true;
-  for (Quad s : selected.shapes) {
+  for (Quad s : selectedVertex.shapes) {
     for (int i = 0; i < s.corners.length; i++) {
-      if (selected == s.corners[i]) {
+      if (selectedVertex == s.corners[i]) {
         if (first) {
           first = false;
         } else {
-          Vertex replacement = new Vertex(selected.x, selected.y);
+          Vertex replacement = new Vertex(selectedVertex.x, selectedVertex.y);
           replacement.addShape(s);
           scene.vertices.add(replacement);
           s.corners[i] = replacement;
