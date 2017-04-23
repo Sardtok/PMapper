@@ -274,7 +274,17 @@ void nudge(JSONObject msg) {
 }
 
 void move(JSONObject msg) {
+  float x = msg.getFloat("x");
+  float y = msg.getFloat("y");
   
+  for (Vertex v : selection) {
+    v.x += x;
+    v.y += y;
+    
+    for (Quad s : v.shapes) {
+      s.dirty = true;
+    }
+  }
 }
 
 void loadScene(File f) {

@@ -110,8 +110,7 @@ void draw() {
 }
 
 void move() {
-  int diff = frameCount - previousMove;
-  if (diff < 5 || !(left || right || up || down)) {
+  if (frameCount - previousMove < 5 || !(left || right || up || down)) {
     return;
   }
   
@@ -254,6 +253,8 @@ void toggleSelection(Iterable<Vertex> vertexIterator) {
 void mouseDragged() {
   float dX = (mouseX - pmouseX) * invScale;
   float dY = (mouseY - pmouseY) * invScale;
+  serverDelta.x += dX;
+  serverDelta.y += dY;
   select();
 
   for (Vertex v : selection) {
@@ -265,6 +266,10 @@ void mouseDragged() {
   if (selectedVertex != null) {
     snap();
   }
+  
+  if (frameCount - previousMove >= 5) {
+    sendMove();
+  }  
 }
 
 void mouseClicked() {
@@ -275,6 +280,25 @@ void mouseClicked() {
   shapeWindow.click();
   
   select();
+}
+
+void mouseReleased() {
+  if (serverDelta.x != 0 || serverDelta.y != 0) {
+    sendMove();
+  }
+}
+
+void sendMove() {
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "move");
+  msg.setFloat("x", serverDelta.x);
+  msg.setFloat("y", serverDelta.y);
+  sendMessage(msg);
+  
+  serverDelta.x = 0;
+  serverDelta.y = 0;
+  previousMove = frameCount;
+
 }
 
 void keyPressed() {
