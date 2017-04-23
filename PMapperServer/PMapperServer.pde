@@ -50,6 +50,7 @@ void setup() {
   useGLMovie = System.getProperty("os.arch").equals("arm");
   
   loadScene("scene.json");
+  play();
   
   server = new Server(this, 2540);
 }
