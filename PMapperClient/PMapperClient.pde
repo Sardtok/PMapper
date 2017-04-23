@@ -224,7 +224,7 @@ void select() {
       shapeWindow.addSelected(s);
     }
     
-    selected.setInt(i, scene.indexOf(v));
+    selected.setInt(i++, scene.indexOf(v));
   }
   
   toSelect = null;
