@@ -33,7 +33,6 @@ Toolbar videoControls = new Toolbar(new Vertex(-0.9, 0.9));
 LayerWindow shapeWindow;
 PFont font;
 PImage icons;
-boolean highlightBackground = true;
 
 Scene scene = new Scene();
 boolean useGLMovie;
@@ -45,6 +44,16 @@ color shapeColors[] = {
   #a04020,
   #20a040
 };
+color bgColors[] = {
+  #000000,
+  #ff0000,
+  #00ff00,
+  #0000ff,
+  #00ffff,
+  #ff00ff,
+  #ffff00
+};
+int bgHighlightColor = 1;
 
 Client client;
 
@@ -66,7 +75,7 @@ void setup() {
   icons = loadImage("Icons.png");
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
-  tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 0.5), new Runnable() { public void run() { highlightBackground = !highlightBackground; }}));
+  tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 0.5), new Runnable() { public void run() { switchHighlightColor(); }}));
   tools.disableTool("Merge");
   tools.disableTool("Split");
 
@@ -85,7 +94,7 @@ void setup() {
 }
 
 void draw() {
-  background(highlightBackground ? #ff0000 : 0);
+  background(bgColors[bgHighlightColor]);
   noStroke();
 
   translate(width / 2, height / 2);
@@ -469,6 +478,15 @@ void pause() {
 void rewind() {
   JSONObject msg = new JSONObject();
   msg.setString("type", "rewind");
+  sendMessage(msg);
+}
+
+void switchHighlightColor() {
+  bgHighlightColor = (bgHighlightColor + 1) % bgColors.length;
+  
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "bg");
+  msg.setInt("bg", bgHighlightColor);
   sendMessage(msg);
 }
 

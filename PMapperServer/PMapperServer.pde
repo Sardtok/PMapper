@@ -16,8 +16,6 @@ int previousNudge;
 Set<Vertex> selection = new HashSet<Vertex>();
 boolean clearSelection;
 
-boolean highlightBackground;
-
 Scene scene;
 PShader texShader;
 boolean useGLMovie;
@@ -29,6 +27,16 @@ color shapeColors[] = {
   #a04020,
   #20a040
 };
+color bgColors[] = {
+  #000000,
+  #ff0000,
+  #00ff00,
+  #0000ff,
+  #00ffff,
+  #ff00ff,
+  #ffff00
+};
+int bgHighlightColor;
 
 Server server;
 Client controller;
@@ -58,7 +66,7 @@ void setup() {
 void draw() {
   getClientUpdates();
   
-  background(mode != Mode.PRESENTATION ? #ff0000 : 0);
+  background(bgColors[bgHighlightColor]);
   noStroke();
 
   translate(width / 2, height / 2);
@@ -164,6 +172,7 @@ void serverEvent(Server server, Client client) {
     controller = client;
     client.write(scene.toJSON().toString());
     mode = Mode.EDIT_SCENE;
+    bgHighlightColor = 1;
   }
 }
 
@@ -171,6 +180,7 @@ void disconnectEvent(Client client) {
   if (client == controller) {
     mode = Mode.PRESENTATION;
     controller = null;
+    bgHighlightColor = 0;
   }
 }
 
@@ -222,6 +232,9 @@ void getClientUpdates() {
       break;
     case "rewind":
       rewind();
+      break;
+    case "bg":
+      bgHighlightColor = msg.getInt("bg");
       break;
   }
 }
