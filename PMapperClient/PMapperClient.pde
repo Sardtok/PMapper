@@ -455,15 +455,21 @@ void split() {
 }
 
 void play() {
-  // SEND play to server
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "play");
+  sendMessage(msg);
 }
 
 void pause() {
-  // SEND pause to server
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "pause");
+  sendMessage(msg);
 }
 
 void rewind() {
-  // SEND rewind to server
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "rewind");
+  sendMessage(msg);
 }
 
 JSONObject readMessage() {

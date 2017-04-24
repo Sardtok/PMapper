@@ -214,6 +214,15 @@ void getClientUpdates() {
     case "move":
       move(msg);
       break;
+    case "play":
+      play();
+      break;
+    case "pause":
+      pause();
+      break;
+    case "rewind":
+      rewind();
+      break;
   }
 }
 
