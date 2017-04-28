@@ -236,6 +236,9 @@ void getClientUpdates() {
     case "bg":
       bgHighlightColor = msg.getInt("bg");
       break;
+    case "quit":
+      exit();
+      break;
   }
 }
 

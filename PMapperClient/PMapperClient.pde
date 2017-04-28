@@ -82,6 +82,7 @@ void setup() {
   videoControls.addTool("Play", new Button(new Vertex(0, 1.0 / 2.0), new Runnable() { public void run() { play(); }}));
   videoControls.addTool("Pause", new Button(new Vertex(1.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { pause(); }}));
   videoControls.addTool("Rewind", new Button(new Vertex(2.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { rewind(); }}));
+  videoControls.addTool("Quit", new Button(new Vertex(4.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { quit(); }}));
   
   font = createFont("Verdana", 10);
   textFont(font);
@@ -90,10 +91,19 @@ void setup() {
   useGLMovie = System.getProperty("os.arch").equals("arm");
   
   client = new Client(this, "localhost", 2540);
-  scene.fromJSON(readMessage());
+  if (!client.active()) {
+    client = null;
+    println("Could not connect to server!");
+  } else {
+    scene.fromJSON(readMessage());
+  }
 }
 
 void draw() {
+  if (client == null) {
+    exit();
+  }
+  
   background(bgColors[bgHighlightColor]);
   noStroke();
 
@@ -148,8 +158,16 @@ void move() {
   previousMove = frameCount;
 }
 
+void quit() {
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "quit");
+  sendMessage(msg);
+}
+
 void exit() {
-  client.stop();
+  if (client != null && client.active()) {
+    client.stop();
+  }
   super.exit();
 }
 
@@ -488,6 +506,10 @@ void switchHighlightColor() {
   msg.setString("type", "bg");
   msg.setInt("bg", bgHighlightColor);
   sendMessage(msg);
+}
+
+void disconnectEvent(Client client) {
+  this.client = null;
 }
 
 JSONObject readMessage() {
