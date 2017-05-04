@@ -19,6 +19,7 @@ boolean clearSelection;
 Scene scene;
 PShader texShader;
 boolean useGLMovie;
+float REWIND_REFRESH_RATE = 0.25;
 color shapeColors[] = {
   #2040a0,
   #a02040,
@@ -142,9 +143,18 @@ Quad getSelectedShape() {
 }
 
 void play() {
+  setPlaybackSpeed(1);
+}
+
+void setPlaybackSpeed(float speed) {
+  if (speed == 0) {
+    pause();
+    return;
+  }
+  
   for (Texture t : scene.textures.values()) {
     if (t instanceof MovieTexture) {
-      ((MovieTexture) t).play();
+      ((MovieTexture) t).setSpeed(speed);
     }
   }
 }
@@ -226,6 +236,9 @@ void getClientUpdates() {
       break;
     case "play":
       play();
+      break;
+    case "speed":
+      setPlaybackSpeed(msg.getFloat("speed"));
       break;
     case "pause":
       pause();

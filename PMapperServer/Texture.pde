@@ -32,18 +32,70 @@ class ImageTexture extends Texture {
 }
 
 abstract class MovieTexture extends Texture {
+  float speed;
+  int previousRead;
+  
   MovieTexture(String name) {
     super(name);
   }
   
+  abstract boolean available();
+  abstract void read();
+  
+  abstract float duration();
+  abstract float time();
+  abstract void jump(float time);
+  
+  abstract void loop();
   abstract void play();
+  abstract void speed(float speed);
   abstract void pause();
-  abstract void rewind();
   abstract void stop();
+  
+  void rewind() {
+    jump(0);
+  }
+  
+  void setSpeed(float speed) {
+    this.speed = speed;
+    
+    if (speed >= 0) {
+      speed(speed);
+      loop();
+    } else {
+      speed(1);
+      play();
+    }
+  }
+  
+  void update() {
+    if (speed < 0) {
+      if ((frameCount - previousRead) < frameRate * REWIND_REFRESH_RATE) {
+        return;
+      }
+      
+      float t = time() + (speed * REWIND_REFRESH_RATE);
+      if (t < 0) {
+        t = duration() + t;
+      }
+      jump(t);
+      play();
+    }
+    
+    if (available()) {
+      read();
+      
+      if (speed < 0) {
+        pause();
+        previousRead = frameCount;
+      }
+    }
+  }
 }
 
 class PMovieTexture extends MovieTexture {
   Movie movie;
+  boolean printThat;
   
   PMovieTexture(Movie movie, String name) {
     super(name);
@@ -54,26 +106,44 @@ class PMovieTexture extends MovieTexture {
     return movie;
   }
   
-  void play() {
+  void loop() {
     movie.loop();
+  }
+  
+  void play() {
+    movie.play();
+  }
+  
+  void speed(float speed) {
+    movie.speed(speed);
   }
   
   void pause() {
     movie.pause();
   }
   
-  void rewind() {
-    movie.jump(0);
-  }
-  
   void stop() {
     movie.stop();
   }
   
-  void update() {
-    if (movie.available()) {
-      movie.read();
-    }
+  boolean available() {
+    return movie.available();
+  }
+  
+  void read() {
+    movie.read();
+  }
+  
+  float time() {
+    return movie.time();
+  }
+  
+  float duration() {
+    return movie.duration();
+  }
+  
+  void jump(float time) {
+    movie.jump(time);
   }
 }
 
@@ -89,26 +159,44 @@ class GLMovieTexture extends MovieTexture {
     return movie;
   }
   
-  void play() {
+  void loop() {
     movie.loop();
+  }
+  
+  void play() {
+    movie.play();
+  }
+  
+  void speed(float speed) {
+    movie.speed(speed);
   }
   
   void pause() {
     movie.pause();
   }
   
-  void rewind() {
-    movie.jump(0);
-  }
-  
   void stop() {
-    pause();
     rewind();
+    pause();
   }
   
-  void update() {
-    if (movie.available()) {
-      movie.read();
-    }
+  boolean available() {
+    return movie.available();
+  }
+  
+  void read() {
+    movie.read();
+  }
+  
+  float time() {
+    return movie.time();
+  }
+  
+  float duration() {
+    return movie.duration();
+  }
+  
+  void jump(float time) {
+    movie.jump(time);
   }
 }

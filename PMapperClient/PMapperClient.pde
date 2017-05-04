@@ -75,14 +75,17 @@ void setup() {
   icons = loadImage("Icons.png");
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
-  tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 0.5), new Runnable() { public void run() { switchHighlightColor(); }}));
+  tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { switchHighlightColor(); }}));
   tools.disableTool("Merge");
   tools.disableTool("Split");
 
-  videoControls.addTool("Play", new Button(new Vertex(0, 1.0 / 2.0), new Runnable() { public void run() { play(); }}));
-  videoControls.addTool("Pause", new Button(new Vertex(1.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { pause(); }}));
-  videoControls.addTool("Rewind", new Button(new Vertex(2.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { rewind(); }}));
-  videoControls.addTool("Quit", new Button(new Vertex(4.0 / 6.0, 1.0 / 2.0), new Runnable() { public void run() { quit(); }}));
+  videoControls.addTool("Backwards", new Button(new Vertex(5.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { setPlaybackSpeed(-1); }}));
+  videoControls.addTool("Play", new Button(new Vertex(0, 1.0 / 3.0), new Runnable() { public void run() { play(); }}));
+  videoControls.addTool("Slow-mo", new Button(new Vertex(0 / 6.0, 2.0 / 3.0), new Runnable() { public void run() { setPlaybackSpeed(0.5); }}));
+  videoControls.addTool("Fast forward", new Button(new Vertex(1.0 / 6.0, 2.0 / 3.0), new Runnable() { public void run() { setPlaybackSpeed(2); }}));
+  videoControls.addTool("Pause", new Button(new Vertex(1.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { pause(); }}));
+  videoControls.addTool("Rewind", new Button(new Vertex(2.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { rewind(); }}));
+  videoControls.addTool("Quit", new Button(new Vertex(4.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { quit(); }}));
   
   font = createFont("Verdana", 10);
   textFont(font);
@@ -484,6 +487,13 @@ void split() {
 void play() {
   JSONObject msg = new JSONObject();
   msg.setString("type", "play");
+  sendMessage(msg);
+}
+
+void setPlaybackSpeed(float speed) {
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "speed");
+  msg.setFloat("speed", speed);
   sendMessage(msg);
 }
 
