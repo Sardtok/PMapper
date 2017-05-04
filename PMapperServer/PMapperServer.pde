@@ -260,7 +260,12 @@ void select(JSONObject msg) {
   
   JSONArray select = msg.getJSONArray("selection");
   for (int i = 0; i < select.size(); i++) {
-    selection.add(scene.getVertex(select.getInt(i)));
+    int vertexIndex = select.getInt(i);
+    if (vertexIndex < 0) {
+      continue;
+    }
+    
+    selection.add(scene.getVertex(vertexIndex));
   }
 }
 
