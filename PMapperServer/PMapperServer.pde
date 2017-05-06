@@ -246,6 +246,9 @@ void getClientUpdates() {
     case "rewind":
       rewind();
       break;
+    case "save":
+      saveScene("scene.json");
+      break;
     case "bg":
       bgHighlightColor = msg.getInt("bg");
       break;
@@ -353,6 +356,13 @@ void loadScene(String filename) {
   Scene scene = new Scene();
   scene.fromJSON(loadJSONObject(filename));
   this.scene = scene;
+}
+
+void saveScene(String filename) {
+  PrintWriter writer = createWriter("data/" + filename);
+  writer.print(scene.toJSON());
+  writer.flush();
+  writer.close();
 }
 
 Texture loadTexture(File f) {

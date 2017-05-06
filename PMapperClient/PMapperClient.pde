@@ -73,6 +73,7 @@ void setup() {
   BORDER_SIZE = invScale;
   
   icons = loadImage("Icons.png");
+  tools.addTool("Save", new Button(new Vertex(1.0 / 6.0, 0), new Runnable() { public void run() { save(); }}));
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
   tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { switchHighlightColor(); }}));
@@ -506,6 +507,12 @@ void pause() {
 void rewind() {
   JSONObject msg = new JSONObject();
   msg.setString("type", "rewind");
+  sendMessage(msg);
+}
+
+void save() {
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "save");
   sendMessage(msg);
 }
 
