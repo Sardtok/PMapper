@@ -30,6 +30,7 @@ boolean clearSelection;
 
 Toolbar tools = new Toolbar(new Vertex(-0.9, -0.9));
 Toolbar videoControls = new Toolbar(new Vertex(-0.9, 0.9));
+Toolbar quitToolbar = new Toolbar(new Vertex(0.9, -0.9));
 LayerWindow shapeWindow;
 PFont font;
 PImage icons;
@@ -86,7 +87,8 @@ void setup() {
   videoControls.addTool("Fast forward", new Button(new Vertex(1.0 / 6.0, 2.0 / 3.0), new Runnable() { public void run() { setPlaybackSpeed(2); }}));
   videoControls.addTool("Pause", new Button(new Vertex(1.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { pause(); }}));
   videoControls.addTool("Rewind", new Button(new Vertex(2.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { rewind(); }}));
-  videoControls.addTool("Quit", new Button(new Vertex(4.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { quit(); }}));
+  
+  quitToolbar.addTool("Quit", new Button(new Vertex(4.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { quit(); }}));
   
   font = createFont("Verdana", 10);
   textFont(font);
@@ -182,12 +184,14 @@ void drawHandles() {
   
   tools.position.drawHandle();
   videoControls.position.drawHandle();
+  quitToolbar.position.drawHandle();
   shapeWindow.position.drawHandle();
 }
 
 void drawButtons() {
   tools.draw();
   videoControls.draw();
+  quitToolbar.draw();
 }
 
 Vertex getMousePosition() {
@@ -210,6 +214,8 @@ void mousePressed() {
       toSelect = tools.position;
     } else if (videoControls.position.grab(mouse.x, mouse.y)) {
       toSelect = videoControls.position;
+    } else if (quitToolbar.position.grab(mouse.x, mouse.y)) {
+      toSelect = quitToolbar.position;
     } else if (shapeWindow.position.grab(mouse.x, mouse.y)) {
       toSelect = shapeWindow.position;
     } else {
@@ -221,6 +227,7 @@ void mousePressed() {
 boolean selectionHasTools() {
   return selection.contains(tools.position)
     || selection.contains(videoControls.position)
+    || selection.contains(quitToolbar.position)
     || selection.contains(shapeWindow.position);
 }
 
@@ -304,7 +311,7 @@ void mouseDragged() {
 }
 
 void mouseClicked() {
-  if (tools.click() || videoControls.click()) {
+  if (tools.click() || videoControls.click() || quitToolbar.click()) {
     return;
   }
   
