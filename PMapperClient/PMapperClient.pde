@@ -77,6 +77,7 @@ void setup() {
   tools.addTool("Save", new Button(new Vertex(1.0 / 6.0, 0), new Runnable() { public void run() { save(); }}));
   tools.addTool("Merge", new Button(new Vertex(3.0 / 6.0, 0), new Runnable() { public void run() { merge(); }}));
   tools.addTool("Split", new Button(new Vertex(4.0 / 6.0, 0), new Runnable() { public void run() { split(); }}));
+  tools.addTool("Mode", new Button(new Vertex(2.0 / 6.0, 2.0 / 3.0), new Runnable() { public void run() { switchMode(); }}));
   tools.addTool("Background", new Button(new Vertex(3.0 / 6.0, 1.0 / 3.0), new Runnable() { public void run() { switchHighlightColor(); }}));
   tools.disableTool("Merge");
   tools.disableTool("Split");
@@ -125,12 +126,10 @@ void draw() {
     scene.draw();
   }
   
-  if (mode != Mode.PRESENTATION) {
-    drawHandles();
-    drawButtons();
-    shapeWindow.draw();
-  }
-
+  drawHandles();
+  drawButtons();
+  shapeWindow.draw();
+  
   mousePosition = null;
 }
 
@@ -167,6 +166,16 @@ void move() {
 void quit() {
   JSONObject msg = new JSONObject();
   msg.setString("type", "quit");
+  sendMessage(msg);
+}
+
+void switchMode() {
+  JSONObject msg = new JSONObject();
+  msg.setString("type", "mode");
+  
+  mode = (mode == Mode.EDIT_SCENE) ? Mode.PRESENTATION : Mode.EDIT_SCENE;
+  bgHighlightColor = (mode == Mode.EDIT_SCENE) ? 1 : 0;
+  msg.setString("mode", mode.name());
   sendMessage(msg);
 }
 
@@ -222,6 +231,18 @@ void mousePressed() {
       clearSelection = true;
     }
   }
+  
+  if (mode == Mode.PRESENTATION && toSelect != null && !toSelectHasTools()) {
+    toSelect = null;
+    clearSelection = true;
+  }
+}
+
+boolean toSelectHasTools() {
+  return toSelect.equals(tools.position)
+    || toSelect.equals(videoControls.position)
+    || toSelect.equals(quitToolbar.position)
+    || toSelect.equals(shapeWindow.position);
 }
 
 boolean selectionHasTools() {

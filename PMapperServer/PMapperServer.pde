@@ -252,6 +252,9 @@ void getClientUpdates() {
     case "bg":
       bgHighlightColor = msg.getInt("bg");
       break;
+    case "mode":
+      setMode(Mode.valueOf(msg.getString("mode")));
+      break;
     case "quit":
       exit();
       break;
@@ -331,6 +334,12 @@ void move(JSONObject msg) {
       s.dirty = true;
     }
   }
+}
+
+void setMode(Mode mode) {
+  this.mode = mode;
+  bgHighlightColor = (mode == Mode.EDIT_SCENE) ? 1 : 0;
+  selection.clear();
 }
 
 void loadScene(File f) {
