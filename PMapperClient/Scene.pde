@@ -74,9 +74,9 @@ class Scene {
     Vertex v2 = getVertex(corners.getInt(2));
     Vertex v3 = getVertex(corners.getInt(3));
 
-    Quad rect = new Quad(v0, v1, v2, v3, shapeColors[shapes.size() % shapeColors.length]);
+    Quad quad = new Quad(v0, v1, v2, v3, shapeColors[shapes.size() % shapeColors.length]);
 
-    return rect;
+    return quad;
   }
 
   Vertex getVertex(int i) {

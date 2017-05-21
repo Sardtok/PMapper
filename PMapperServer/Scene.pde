@@ -81,20 +81,20 @@ class Scene {
     Vertex v2 = getVertex(corners.getInt(2));
     Vertex v3 = getVertex(corners.getInt(3));
 
-    Quad rect = new Quad(v0, v1, v2, v3, color(red, green, blue, alpha));
+    Quad quad = new Quad(v0, v1, v2, v3, color(red, green, blue, alpha));
 
-    rect.uvs[0] = getUV(uvs.getInt(0));
-    rect.uvs[1] = getUV(uvs.getInt(1));
-    rect.uvs[2] = getUV(uvs.getInt(2));
-    rect.uvs[3] = getUV(uvs.getInt(3));
+    quad.uvs[0] = getUV(uvs.getInt(0));
+    quad.uvs[1] = getUV(uvs.getInt(1));
+    quad.uvs[2] = getUV(uvs.getInt(2));
+    quad.uvs[3] = getUV(uvs.getInt(3));
 
     if (!json.isNull("texture")) {
       String path = json.getString("texture");
-      Texture t = loadTexture(new File(path), this);
-      rect.setTexture(t);
+      Texture t = loadTexture(path, this);
+      quad.setTexture(t);
     }
 
-    return rect;
+    return quad;
   }
 
   JSONObject toJSON() {
