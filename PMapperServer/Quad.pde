@@ -6,7 +6,7 @@ class Quad {
   PShape buffer;
   
   Texture texture;
-  color c = #ffffff;
+  color c;
   String name = "Quad";
   
   Quad(Vertex v0, Vertex v1, Vertex v2, Vertex v3, color c) {
@@ -28,7 +28,7 @@ class Quad {
       populateBuffer();
     }
     
-    if (texture != null) {
+    if (texture != null && shaderMode == ShaderMode.TEXTURE) {
       shader(texShader);
     }
     shape(buffer);
@@ -44,7 +44,7 @@ class Quad {
     buffer = createShape();
     buffer.beginShape(QUADS);
     
-    if (texture != null) {
+    if (texture != null && shaderMode == ShaderMode.TEXTURE) {
       float dx1 = corners[2].x - corners[0].x;
       float dy1 = corners[2].y - corners[0].y;
       float dx2 = corners[3].x - corners[1].x;
@@ -74,7 +74,7 @@ class Quad {
       buffer.attrib("texCoordQ", 1.0 / (u));
       buffer.vertex(corners[3].x, corners[3].y, uvs[3].x, uvs[3].y);
     } else {
-      buffer.fill(c);
+      buffer.fill(getColor());
       buffer.vertex(corners[0].x, corners[0].y);
       buffer.vertex(corners[1].x, corners[1].y);
       buffer.vertex(corners[2].x, corners[2].y);
@@ -83,6 +83,17 @@ class Quad {
 
     buffer.endShape();
     dirty = false;
+  }
+  
+  color getColor() {
+    switch (shaderMode) {
+      case WHITE:
+        return #ffffff;
+      case COLOR:
+        return shapeColors[scene.indexOf(this) % shapeColors.length];
+      default:
+        return c;
+    }
   }
   
   void drawHandles() {

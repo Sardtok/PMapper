@@ -177,6 +177,19 @@ class Scene {
 
     return -1;
   }
+  
+  int indexOf(Quad quad) {
+    int i = 0;
+    for (Quad q : shapes) {
+      if (quad == q) {
+        return i;
+      }
+      
+      i++;
+    }
+    
+    return -1;
+  }
 
   String getTexturePath(Texture t) {
     for (Map.Entry<String, Texture> entry : textures.entrySet()) {

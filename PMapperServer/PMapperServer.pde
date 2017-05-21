@@ -28,6 +28,7 @@ color shapeColors[] = {
   #a04020,
   #20a040
 };
+ShaderMode shaderMode = ShaderMode.TEXTURE;
 color bgColors[] = {
   #000000,
   #ff0000,
@@ -255,6 +256,8 @@ void getClientUpdates() {
     case "mode":
       setMode(Mode.valueOf(msg.getString("mode")));
       break;
+    case "shaderMode":
+      setShaderMode(ShaderMode.valueOf(msg.getString("mode")));
     case "quit":
       exit();
       break;
@@ -340,6 +343,14 @@ void setMode(Mode mode) {
   this.mode = mode;
   bgHighlightColor = (mode == Mode.EDIT_SCENE) ? 1 : 0;
   selection.clear();
+}
+
+void setShaderMode(ShaderMode mode) {
+  this.shaderMode = mode;
+  
+  for (Quad q : scene.shapes) {
+    q.dirty = true;
+  }
 }
 
 void loadScene(File f) {
