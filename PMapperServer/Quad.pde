@@ -112,7 +112,6 @@ class Quad {
   
   void setTexture(Texture t) {
     this.texture = t;
-    this.c = #ffffff;
     dirty = true;
   }
   
