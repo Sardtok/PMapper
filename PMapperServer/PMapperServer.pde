@@ -189,9 +189,9 @@ void serverEvent(Server server, Client client) {
 
 void disconnectEvent(Client client) {
   if (client == controller) {
-    mode = Mode.PRESENTATION;
+    setMode(Mode.PRESENTATION);
+    setShaderMode(ShaderMode.TEXTURE);
     controller = null;
-    bgHighlightColor = 0;
   }
 }
 
@@ -258,6 +258,7 @@ void getClientUpdates() {
       break;
     case "shaderMode":
       setShaderMode(ShaderMode.valueOf(msg.getString("mode")));
+      break;
     case "quit":
       exit();
       break;
