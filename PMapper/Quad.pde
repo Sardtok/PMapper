@@ -63,15 +63,19 @@ class Quad implements Selectable, Layer {
       buffer.tint(c);
 
       buffer.attrib("texCoordQ", 1.0 / (1.0 - t));
+      buffer.attrib("feather", 1.0, 0.0, 0.0, 1.0);
       buffer.vertex(corners[0].x, corners[0].y, uvs[0].x, uvs[0].y);
 
       buffer.attrib("texCoordQ", 1.0 / (1.0 - u));
+      buffer.attrib("feather", 1.0, 1.0, 0.0, 0.0);
       buffer.vertex(corners[1].x, corners[1].y, uvs[1].x, uvs[1].y);
 
       buffer.attrib("texCoordQ", 1.0 / (t));
+      buffer.attrib("feather", 0.0, 1.0, 1.0, 0.0);
       buffer.vertex(corners[2].x, corners[2].y, uvs[2].x, uvs[2].y);
 
       buffer.attrib("texCoordQ", 1.0 / (u));
+      buffer.attrib("feather", 0.0, 0.0, 1.0, 1.0);
       buffer.vertex(corners[3].x, corners[3].y, uvs[3].x, uvs[3].y);
     } else {
       buffer.fill(c);
