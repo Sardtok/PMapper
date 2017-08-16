@@ -1,5 +1,4 @@
 uniform mat4 transform;
-uniform mat4 texMatrix;
 
 attribute vec4 position;
 attribute vec4 color;

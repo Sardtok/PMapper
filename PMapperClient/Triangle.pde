@@ -1,25 +1,22 @@
-class Quad extends Shape {
-  color c = #ffffff;
-  String name = "Quad";
+class Triangle extends Shape {
   
-  Quad(Vertex v0, Vertex v1, Vertex v2, Vertex v3, color c) {
-    vertices = new Vertex[] { v0, v1, v2, v3 };
+  Triangle(Vertex v0, Vertex v1, Vertex v2, color c) {
+    vertices = new Vertex[] { v0, v1, v2 };
+    uvs = new Vertex[] {new Vertex(0, 0), new Vertex(0, 1), new Vertex(1, 1)};
     
     this.c = c;
     
     v0.addShape(this);
     v1.addShape(this);
     v2.addShape(this);
-    v3.addShape(this);
   }
-  
+
   void draw() {
-    beginShape(QUADS);
+    beginShape(TRIANGLES);
     fill(c);
     vertices[0].draw();
     vertices[1].draw();
     vertices[2].draw();
-    vertices[3].draw();
     endShape();
     
     for (Vertex v : vertices) {
@@ -27,6 +24,11 @@ class Quad extends Shape {
     }
     
     resetShader();
+  }
+  
+  void select() {
+    clearSelection = false;
+    toSelect = this;
   }
   
   boolean grab(float x, float y) {
@@ -37,26 +39,12 @@ class Quad extends Shape {
     selectionBuffer.translate(width / 2, height / 2);
     selectionBuffer.scale(scale);
     
-    selectionBuffer.quad(vertices[0].x, vertices[0].y, 
+    selectionBuffer.triangle(vertices[0].x, vertices[0].y, 
       vertices[1].x, vertices[1].y, 
-      vertices[2].x, vertices[2].y, 
-      vertices[3].x, vertices[3].y);
+      vertices[2].x, vertices[2].y);
     
     selectionBuffer.endDraw();
     
     return selectionBuffer.get((int)((x * scale) + (width / 2)), (int)((y * scale) + (height / 2))) == #ffffff;
-  }
-  
-  void setName(String name) {
-    this.name = name;
-  }
-  
-  String getName() {
-    return name;
-  }
-  
-  void select() {
-    clearSelection = false;
-    toSelect = this;
   }
 }

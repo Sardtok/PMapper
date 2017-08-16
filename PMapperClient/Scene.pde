@@ -1,10 +1,10 @@
 class Scene {
   Set<Vertex> vertices = new LinkedHashSet<Vertex>();
-  Set<Quad> shapes = new LinkedHashSet<Quad>();
+  Set<Shape> shapes = new LinkedHashSet<Shape>();
   Map<String, Texture> textures = new HashMap<String, Texture>();
 
-  void addQuad(Quad r) {
-    for (Vertex v : r.corners) {
+  void addShape(Shape r) {
+    for (Vertex v : r.vertices) {
       vertices.add(v);
     }
 
@@ -13,7 +13,7 @@ class Scene {
   }
 
   void draw() {
-    for (Quad s : shapes) {
+    for (Shape s : shapes) {
       s.draw();
     }
   }
@@ -31,7 +31,7 @@ class Scene {
       }
     }
 
-    for (Quad s : shapes) {
+    for (Shape s : shapes) {
       if (s.grab(x, y)) {
         return s;
       }
@@ -53,9 +53,9 @@ class Scene {
     }
 
     for (int i = 0; i < jsonShapes.size(); i++) {
-      Quad q = quadFromJSON(jsonShapes.getJSONObject(i)); 
-      q.name = "Quad " + (i + 1);
-      addQuad(q);
+      Shape s = shapeFromJSON(jsonShapes.getJSONObject(i)); 
+      s.name = "Shape " + (i + 1);
+      addShape(s);
     }
   }
 
@@ -66,17 +66,27 @@ class Scene {
     return new Vertex(x, y);
   }
 
-  Quad quadFromJSON(JSONObject json) {
-    JSONArray corners = json.getJSONArray("corners");
+  Shape shapeFromJSON(JSONObject json) {
+    println(json);
+    JSONArray vertices = json.getJSONArray("vertices");
+    float red = json.getFloat("red");
+    float green = json.getFloat("green");
+    float blue = json.getFloat("blue");
+    float alpha = json.getFloat("alpha");
+    color c = color(red, green, blue, alpha);
+    Shape s = null;
 
-    Vertex v0 = getVertex(corners.getInt(0));
-    Vertex v1 = getVertex(corners.getInt(1));
-    Vertex v2 = getVertex(corners.getInt(2));
-    Vertex v3 = getVertex(corners.getInt(3));
+    if (json.isNull("type") || "quad".equals(json.getString("type"))) {
+      s = new Quad(getVertex(vertices.getInt(0)), getVertex(vertices.getInt(1)), getVertex(vertices.getInt(2)), getVertex(vertices.getInt(3)), c);
+    } else if ("triangle".equals(json.getString("type"))) {
+      s = new Triangle(getVertex(vertices.getInt(0)), getVertex(vertices.getInt(1)), getVertex(vertices.getInt(2)), c);
+    }
+    
+    if (s == null) {
+      return null;
+    }
 
-    Quad quad = new Quad(v0, v1, v2, v3, shapeColors[shapes.size() % shapeColors.length]);
-
-    return quad;
+    return s;
   }
 
   Vertex getVertex(int i) {
@@ -101,6 +111,19 @@ class Scene {
       i++;
     }
 
+    return -1;
+  }
+  
+  int indexOf(Shape shape) {
+    int i = 0;
+    for (Shape s : shapes) {
+      if (shape == s) {
+        return i;
+      }
+      
+      i++;
+    }
+    
     return -1;
   }
 

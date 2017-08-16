@@ -34,6 +34,7 @@ class ImageTexture extends Texture {
 abstract class MovieTexture extends Texture {
   float speed;
   int previousRead;
+  boolean firstRead = true;
   
   MovieTexture(String name) {
     super(name);
@@ -83,6 +84,11 @@ abstract class MovieTexture extends Texture {
     }
     
     if (available()) {
+      if (firstRead) {
+        firstRead = false;
+        texturesWaiting--;
+      }
+      
       read();
       
       if (speed < 0) {
@@ -131,6 +137,7 @@ class PMovieTexture extends MovieTexture {
   }
   
   void read() {
+    movie.volume(0);
     movie.read();
   }
   
@@ -185,6 +192,7 @@ class GLMovieTexture extends MovieTexture {
   }
   
   void read() {
+    movie.volume(0);
     movie.read();
   }
   

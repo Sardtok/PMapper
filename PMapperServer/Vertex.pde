@@ -1,5 +1,5 @@
 class Vertex {
-  Set<Quad> shapes = new HashSet<Quad>();
+  Set<Shape> shapes = new HashSet<Shape>();
   float x, y;
   boolean handleDrawn;
 
@@ -8,7 +8,7 @@ class Vertex {
     this.y = y;
   }
 
-  void addShape(Quad s) {
+  void addShape(Shape s) {
     shapes.add(s);
   }
 
@@ -46,7 +46,7 @@ class Vertex {
 
   void merge(Vertex other) {
     shapes.addAll(other.shapes);
-    for (Quad s : other.shapes) {
+    for (Shape s : other.shapes) {
       s.replace(other, this);
     }
     scene.vertices.remove(other);

@@ -1,11 +1,11 @@
 class Scene {
   Set<Vertex> vertices = new LinkedHashSet<Vertex>();
   Set<Vertex> uvs = new LinkedHashSet<Vertex>();
-  Set<Quad> shapes = new LinkedHashSet<Quad>();
+  Set<Shape> shapes = new LinkedHashSet<Shape>();
   Map<String, Texture> textures = new HashMap<String, Texture>();
 
-  void addQuad(Quad r) {
-    for (Vertex v : r.corners) {
+  void addShape(Shape r) {
+    for (Vertex v : r.vertices) {
       vertices.add(v);
     }
     for (Vertex v : r.uvs) {
@@ -27,7 +27,7 @@ class Scene {
       t.update();
     }
     
-    for (Quad s : shapes) {
+    for (Shape s : shapes) {
       s.draw();
     }
   }
@@ -55,9 +55,8 @@ class Scene {
     }
 
     for (int i = 0; i < jsonShapes.size(); i++) {
-      Quad q = quadFromJSON(jsonShapes.getJSONObject(i)); 
-      q.name = "Quad " + (i + 1);
-      addQuad(q);
+      Shape s = shapeFromJSON(jsonShapes.getJSONObject(i));
+      addShape(s);
     }
   }
 
@@ -68,33 +67,37 @@ class Scene {
     return new Vertex(x, y);
   }
 
-  Quad quadFromJSON(JSONObject json) {
-    JSONArray corners = json.getJSONArray("corners");
+  Shape shapeFromJSON(JSONObject json) {
+    JSONArray vertices = json.getJSONArray("vertices");
     JSONArray uvs = json.getJSONArray("uvs");
     float red = json.getFloat("red");
     float green = json.getFloat("green");
     float blue = json.getFloat("blue");
     float alpha = json.getFloat("alpha");
+    color c = color(red, green, blue, alpha);
+    Shape s = null;
 
-    Vertex v0 = getVertex(corners.getInt(0));
-    Vertex v1 = getVertex(corners.getInt(1));
-    Vertex v2 = getVertex(corners.getInt(2));
-    Vertex v3 = getVertex(corners.getInt(3));
-
-    Quad quad = new Quad(v0, v1, v2, v3, color(red, green, blue, alpha));
-
-    quad.uvs[0] = getUV(uvs.getInt(0));
-    quad.uvs[1] = getUV(uvs.getInt(1));
-    quad.uvs[2] = getUV(uvs.getInt(2));
-    quad.uvs[3] = getUV(uvs.getInt(3));
+    if (json.isNull("type") || "quad".equals(json.getString("type"))) {
+      s = new Quad(getVertex(vertices.getInt(0)), getVertex(vertices.getInt(1)), getVertex(vertices.getInt(2)), getVertex(vertices.getInt(3)), c);
+    } else if ("triangle".equals(json.getString("type"))) {
+      s = new Triangle(getVertex(vertices.getInt(0)), getVertex(vertices.getInt(1)), getVertex(vertices.getInt(2)), c);
+    }
+    
+    if (s == null) {
+      return null;
+    }
+    
+    for (int i = 0; i < s.vertices.length; i++) {
+        s.uvs[i] = getUV(uvs.getInt(i));
+    }
 
     if (!json.isNull("texture")) {
       String path = json.getString("texture");
       Texture t = loadTexture(path, this);
-      quad.setTexture(t);
+      s.setTexture(t);
     }
 
-    return quad;
+    return s;
   }
 
   JSONObject toJSON() {
@@ -120,7 +123,7 @@ class Scene {
     }
 
     i = 0;
-    for (Quad s : shapes) {
+    for (Shape s : shapes) {
       jsonShapes.setJSONObject(i, s.toJSON());
       i++;
     }
@@ -178,10 +181,10 @@ class Scene {
     return -1;
   }
   
-  int indexOf(Quad quad) {
+  int indexOf(Shape shape) {
     int i = 0;
-    for (Quad q : shapes) {
-      if (quad == q) {
+    for (Shape s : shapes) {
+      if (shape == s) {
         return i;
       }
       

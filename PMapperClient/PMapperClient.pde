@@ -300,7 +300,7 @@ void select() {
   msg.setJSONArray("selection", selected);
   
   for (Vertex v : selection) {
-    for (Quad s : v.shapes) {
+    for (Shape s : v.shapes) {
       shapeWindow.addSelected(s);
     }
     
@@ -400,21 +400,21 @@ void keyReleased() {
 
 void createQuad() {
   Quad r = new Quad(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
-  scene.addQuad(r);
-  r.setName("Quad " + scene.shapes.size());
+  scene.addShape(r);
+  r.setName("Shape " + scene.shapes.size());
 }
 
-Quad getSelectedShape() {
-  Set<Quad> selectedShapes = new HashSet<Quad>();
+Shape getSelectedShape() {
+  Set<Shape> selectedShapes = new HashSet<Shape>();
   for (Vertex v : selection) {
     selectedShapes.addAll(v.shapes);
   }
   
-  Iterator<Quad> it = selectedShapes.iterator();
+  Iterator<Shape> it = selectedShapes.iterator();
   while (it.hasNext()) {
     boolean allSelected = true;
-    Quad r = it.next();
-    for (Vertex v : r.corners) {
+    Shape r = it.next();
+    for (Vertex v : r.vertices) {
       if (!selection.contains(v)) {
         allSelected = false;
         break;
@@ -480,7 +480,7 @@ void enableSplit() {
     tools.enableTool("Split");
   } else {
     int count = 0;
-    for (Vertex v : selectedVertex.shapes.iterator().next().corners) {
+    for (Vertex v : selectedVertex.shapes.iterator().next().vertices) {
       if (selectedVertex == v) {
         count++;
       }
@@ -517,16 +517,16 @@ void split() {
   }
   
   boolean first = true;
-  for (Quad s : selectedVertex.shapes) {
-    for (int i = 0; i < s.corners.length; i++) {
-      if (selectedVertex == s.corners[i]) {
+  for (Shape s : selectedVertex.shapes) {
+    for (int i = 0; i < s.vertices.length; i++) {
+      if (selectedVertex == s.vertices[i]) {
         if (first) {
           first = false;
         } else {
           Vertex replacement = new Vertex(selectedVertex.x, selectedVertex.y);
           replacement.addShape(s);
           scene.vertices.add(replacement);
-          s.corners[i] = replacement;
+          s.vertices[i] = replacement;
         }
       }
     }

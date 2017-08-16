@@ -19,7 +19,8 @@ boolean clearSelection;
 Scene scene;
 PShader texShader;
 boolean useGLMovie;
-float REWIND_REFRESH_RATE = 0.25;
+int texturesWaiting;
+float REWIND_REFRESH_RATE = 1;
 color shapeColors[] = {
   #2040a0,
   #a02040,
@@ -61,6 +62,7 @@ void setup() {
   
   loadScene("scene.json");
   play();
+  texturesWaiting = scene.textures.size();
   
   server = new Server(this, 2540);
 }
@@ -78,6 +80,11 @@ void draw() {
   
   if (mode != Mode.PRESENTATION) {
     drawHandles();
+  }
+  
+  if (texturesWaiting == 0) {
+    texturesWaiting--;
+    rewind();
   }
 }
 
@@ -102,7 +109,7 @@ void clearSelection() {
 
 void createQuad() {
   Quad r = new Quad(new Vertex(-0.25, -0.25), new Vertex(-0.25, 0.25), new Vertex(0.25, 0.25), new Vertex(0.25, -0.25), shapeColors[scene.shapes.size() % shapeColors.length]);
-  scene.addQuad(r);
+  scene.addShape(r);
   r.setName("Quad " + scene.shapes.size());
 }
 
@@ -114,17 +121,17 @@ Vertex getSelectedVertex() {
   return selection.iterator().next();
 }
 
-Quad getSelectedShape() {
-  Set<Quad> selectedShapes = new HashSet<Quad>();
+Shape getSelectedShape() {
+  Set<Shape> selectedShapes = new HashSet<Shape>();
   for (Vertex v : selection) {
     selectedShapes.addAll(v.shapes);
   }
   
-  Iterator<Quad> it = selectedShapes.iterator();
+  Iterator<Shape> it = selectedShapes.iterator();
   while (it.hasNext()) {
     boolean allSelected = true;
-    Quad r = it.next();
-    for (Vertex v : r.corners) {
+    Shape r = it.next();
+    for (Vertex v : r.vertices) {
       if (!selection.contains(v)) {
         allSelected = false;
         break;
@@ -163,6 +170,7 @@ void setPlaybackSpeed(float speed) {
 void pause() {
   for (Texture t : scene.textures.values()) {
     if (t instanceof MovieTexture) {
+      ((MovieTexture) t).setSpeed(1);
       ((MovieTexture) t).pause();
     }
   }
@@ -312,7 +320,7 @@ void nudge(JSONObject msg) {
     v.x += x;
     v.y += y;
     
-    for (Quad s : v.shapes) {
+    for (Shape s : v.shapes) {
       s.dirty = true;
     }
     
@@ -334,7 +342,7 @@ void move(JSONObject msg) {
     v.x += x;
     v.y += y;
     
-    for (Quad s : v.shapes) {
+    for (Shape s : v.shapes) {
       s.dirty = true;
     }
   }
@@ -349,7 +357,7 @@ void setMode(Mode mode) {
 void setShaderMode(ShaderMode mode) {
   this.shaderMode = mode;
   
-  for (Quad q : scene.shapes) {
+  for (Shape q : scene.shapes) {
     q.dirty = true;
   }
 }
@@ -424,7 +432,7 @@ Texture loadTexture (String filename, Scene scene) {
   
   scene.addTexture(t, filename);
 
-  for (Quad s : scene.shapes) {
+  for (Shape s : scene.shapes) {
     Collection<Vertex> verts = (Collection<Vertex>) s.getVertices();
     if (selection.containsAll(verts) && verts.containsAll(selection)) {
       s.setTexture(t);
